@@ -1,0 +1,11 @@
+{
+  "name": "saengilcheop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "생일첩 — 생년월일로 보는 나이·띠·별자리·음력·일주",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "build:quick": "node tools/build.mjs --from 1994 --to 1996",
+    "serve": "node server.js"
+  }
+}
