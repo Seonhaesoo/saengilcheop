@@ -110,3 +110,20 @@ footer { margin-top: 36px; padding-top: 14px; border-top: 1px solid var(--line);
 .fnote { margin-top: 8px; font-size: 11.5px; color: var(--faint); line-height: 1.6; }
 
 .el-목 { color: var(--el-mok); } .el-화 { color: var(--el-hwa); } .el-토 { color: var(--el-to); } .el-금 { color: var(--el-geum); } .el-수 { color: var(--el-su); }
+
+/* 달력·공휴일 */
+.cal span.d { display: block; background: var(--card); border: 1px solid var(--line-soft); border-radius: 8px; padding: 6px 2px; text-align: center; font-size: 14px; line-height: 1.2; min-height: 48px; }
+.cal span.d small { display: block; font-size: 10px; color: var(--faint); margin-top: 3px; white-space: nowrap; }
+.cal .hol { background: #FBF0EE; border-color: #E8B4AE; color: var(--seal); }
+.cal .hol small:last-child { color: var(--seal); }
+.cal .today { box-shadow: inset 0 0 0 2px var(--seal); }
+.cal span.son { border-color: #D9C58F; }
+tr.sub td { background: #FBF6EE; }
+td.sun { color: var(--seal); } td.sat { color: var(--el-su); }
+
+/* 계산기 폼 */
+.frow-label { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13.5px; color: var(--muted); }
+.frow-label input[type=date], .frow-label input[type=number] { font: inherit; font-size: 15px; padding: 8px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); color: var(--ink); flex: 1; min-width: 0; }
+.frow-label.chk { font-size: 13px; }
+.out { margin-top: 14px; }
+.out .lead { margin-top: 0; }

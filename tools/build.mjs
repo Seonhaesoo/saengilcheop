@@ -12,6 +12,7 @@ import path from 'node:path';
 import { loadEngine, kstToday, ROOT_DIR } from './engine.mjs';
 import { ILJU, UN_LINE, SPOUSE_LINE } from '../data/ilju.mjs';
 import { DDI, STEM_COLOR, STEM_COLOR_WORD, ZODIAC, BIRTHSTONE, pensionAge, zodiacOf } from '../data/meta.mjs';
+import { buildHubs } from './hubs.mjs';
 
 const { M, I, C, Lunar } = loadEngine();
 const SITE = 'https://saengil.sajucheop.com';
@@ -173,7 +174,7 @@ ${ld}
     <a class="brand" href="/">${BRAND_SVG}<span class="brand-name">생일첩</span></a>
     <a class="sis-chip" href="${SAJU}/" title="사주첩 — 여덟 글자에 담긴 당신의 이야기">${SAJU_ICON}<span>사주첩</span></a>
   </div>
-  <nav class="nav"><a href="/#years">연도별</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
+  <nav class="nav"><a href="/age/">만나이</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
 </header>
 ${o.body}
 <footer>
@@ -181,6 +182,7 @@ ${o.body}
   <p class="fnote">${o.footNote || '나이·기념일은 계산 결과이며, 띠·별자리·사주 풀이는 전통 명리학과 점성술 이론에 바탕한 참고용 콘텐츠입니다.'}</p>
 </footer>
 </div>
+${o.extraBody || ''}
 <script src="/js/live.js" defer></script>
 </body>
 </html>
@@ -573,6 +575,17 @@ function homePage() {
 </form>
 <p class="note">${Y0}년 1월 1일 ~ ${fmt(today.y, today.m, today.d)} 출생까지. 생년월일은 서버로 전송되지 않으며 주소만 이동합니다. 오늘 태어난 아기는 <a href="${dayUrl(today.y, today.m, today.d)}">${fmt(today.y, today.m, today.d)}생</a>, 오늘이 생일인 사람은 <a href="${todayMd}">${today.m}월 ${today.d}일생</a>.</p>
 <section>
+<h2>계산기와 달력</h2>
+<div class="grid g3">
+<a href="/age/"><b>만 나이 계산기</b><small>만·연·세는나이</small></a>
+<a href="/dday/"><b>디데이 · 100일</b><small>기념일 날짜 계산</small></a>
+<a href="/cal/${today.y}/"><b>${today.y}년 달력</b><small>공휴일·연휴</small></a>
+<a href="/cal/${today.y + 1}/"><b>${today.y + 1}년 달력</b><small>공휴일·대체공휴일</small></a>
+<a href="/cal/${today.y + 2}/"><b>${today.y + 2}년 달력</b><small>설날·추석 날짜</small></a>
+<a href="/md/"><b>월일별 생일</b><small>별자리·탄생석</small></a>
+</div>
+</section>
+<section>
 <h2>무엇을 알 수 있나요</h2>
 <ul>
   <li><strong>나이</strong> — 만 나이(법적 나이), 연나이, 세는나이를 오늘 날짜 기준으로. 태어난 지 며칠째인지, 다음 생일까지 며칠 남았는지.</li>
@@ -677,6 +690,7 @@ DDI.forEach(ddiPage);
 ZODIAC.forEach(zodiacPage);
 indexPages();
 homePage();
+buildHubs({ shell, write, esc, pad, iso, fmt, num, WD, today, Y0, Y1, SITE, SAJU, dayUrl, monthUrl, yearUrl, mdUrl, dn, civ, weekday, isLeap, dim, addDays, addYears, lunarOf, lunarNewYear, yearTerms, ddiOfYear, stemOfYear, colorDdi, colorDdiShort, yearGanji, crumbs, M, I, Lunar, DDI, BUILD_ISO });
 staticPages();
 sitemaps();
 console.log(`생일첩 빌드 완료: ${Y0}~${Y1}, 날짜 ${count}장 + 기타 ${urls.pages.length}장, ${((Date.now() - t0) / 1000).toFixed(1)}s${FULL ? '' : ' (부분 빌드)'}`);
