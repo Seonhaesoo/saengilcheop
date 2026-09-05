@@ -54,7 +54,7 @@ export const DDI = [
 
 /* 천간 색 — 甲乙 청, 丙丁 적, 戊己 황, 庚辛 백, 壬癸 흑 */
 export const STEM_COLOR = ['청', '청', '적', '적', '황', '황', '백', '백', '흑', '흑'];
-export const STEM_COLOR_WORD = { '청': '푸른', '적': '붉은', '황': '누런(황금)', '백': '흰', '흑': '검은' };
+export const STEM_COLOR_WORD = { '청': '푸른', '적': '붉은', '황': '황금', '백': '흰', '흑': '검은' };
 
 /* 별자리 — 국내 통용 날짜 기준 */
 export const ZODIAC = [

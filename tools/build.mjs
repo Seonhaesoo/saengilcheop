@@ -97,7 +97,7 @@ function ipchunJd(y) { return ipchunCache[y] || (ipchunCache[y] = I.ipchunJd(y))
 const ddiOfYear = (y) => DDI[((y - 4) % 12 + 12) % 12];
 const stemOfYear = (y) => ((y - 4) % 10 + 10) % 10;
 const colorDdi = (y) => STEM_COLOR_WORD[STEM_COLOR[stemOfYear(y)]] + ' ' + ddiOfYear(y).animal;
-const colorDdiShort = (y) => STEM_COLOR[stemOfYear(y)] + ddiOfYear(y).animal;
+const colorDdiShort = (y) => colorDdi(y);
 const yearGanji = (y) => M.ganjiName(stemOfYear(y), ((y - 4) % 12 + 12) % 12);
 
 function dayData(y, m, d) {
