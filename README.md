@@ -2,7 +2,7 @@
 
 생년월일 하나로 나이·띠·별자리·음력·기념일·학번·사주 일주를 한 장에 담는 정적 사이트. [사주첩](https://sajucheop.com)의 자매 사이트.
 
-**사이트**: https://saengil.sajucheop.com
+**사이트**: http://saengil.sajucheop.com
 
 ## 페이지 구조
 

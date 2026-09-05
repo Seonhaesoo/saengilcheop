@@ -15,7 +15,7 @@ import { DDI, STEM_COLOR, STEM_COLOR_WORD, ZODIAC, BIRTHSTONE, pensionAge, zodia
 import { buildHubs } from './hubs.mjs';
 
 const { M, I, C, Lunar } = loadEngine();
-const SITE = 'https://saengil.sajucheop.com';
+const SITE = 'http://saengil.sajucheop.com';
 const SAJU = 'https://sajucheop.com';
 const OUT = path.join(ROOT_DIR, 'dist');
 const SRC = path.join(ROOT_DIR, 'src');
