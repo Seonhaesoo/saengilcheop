@@ -310,7 +310,7 @@ ${jeolNote}
 <p>${ilju.core}</p>
 <p>${UN_LINE[ilju.un]}</p>
 <p>${SPOUSE_LINE[M.branchSipseong(x.dayP.stem, x.dayP.branch)]}</p>
-<p class="callout">일주는 태어난 날의 간지로 정해져 시각과 상관없이 같지만, 시주(태어난 시간)와 대운·오행 균형까지 보려면 정확한 출생 시각이 필요합니다. <a href="${SAJU}/ilju/${ilju.slug}/">${ilju.kor}일주 풀이 전문</a> · <a href="${SAJU}/">사주첩에서 내 사주 보기</a></p>
+<p class="callout">일주는 태어난 날의 간지로 정해져 시각과 상관없이 같지만, 시주(태어난 시간)와 대운·오행 균형까지 보려면 정확한 출생 시각이 필요합니다. <a href="${SAJU}/ilju/${ilju.slug}/">${ilju.kor}일주 풀이 전문</a> · <a href="${SAJU}/2027/ilju/${ilju.slug}/"><b>${ilju.kor}일주 2027년 운세</b></a> · <a href="${SAJU}/">사주첩에서 내 사주 보기</a></p>
 ${chungi.length ? `<p class="note">이 날은 절기 <b>${chungi.join(', ')}</b>입니다.</p>` : ''}
 ${x.lun && x.lun.son ? '<p class="note">음력 ' + x.lun.d + '일은 손없는 날 — 이사·개업 같은 큰일을 하기 좋다고 여기는 날에 태어났습니다.</p>' : ''}
 </section>
@@ -437,7 +437,7 @@ function yearPage(y) {
 <p>${ddi.trait}</p>
 <p>${ddi.love}</p>
 <p>${ddi.work}</p>
-<p class="callout">띠는 보통 설날(음력 1월 1일, ${y}년은 ${lny.m}월 ${lny.d}일)을 기준으로 바뀝니다. ${y}년 1월 1일~${lny.m}월 ${lny.d - 1 > 0 ? lny.d - 1 + '일' : '설날 전날'}생은 설날 기준으로 ${ddiOfYear(y - 1).animal}이고, 사주(명리)에서는 입춘(${ip.m}월 ${ip.d}일 ${pad(ip.hh)}:${pad(ip.mm)}) 이후 출생부터 ${ddi.animal}로 봅니다. <a href="/ddi/${ddi.slug}/">${ddi.animal} 해 전체 보기</a></p>
+<p class="callout">띠는 보통 설날(음력 1월 1일, ${y}년은 ${lny.m}월 ${lny.d}일)을 기준으로 바뀝니다. ${y}년 1월 1일~${lny.m}월 ${lny.d - 1 > 0 ? lny.d - 1 + '일' : '설날 전날'}생은 설날 기준으로 ${ddiOfYear(y - 1).animal}이고, 사주(명리)에서는 입춘(${ip.m}월 ${ip.d}일 ${pad(ip.hh)}:${pad(ip.mm)}) 이후 출생부터 ${ddi.animal}로 봅니다. <a href="/ddi/${ddi.slug}/">${ddi.animal} 해 전체 보기</a> · ${y >= 1945 && y <= 2010 ? `<a href="${SAJU}/2027/ddi/${ddi.slug}/${y}/"><b>${y}년생 ${ddi.animal} 2027년 운세</b></a>` : `<a href="${SAJU}/2027/ddi/${ddi.slug}/"><b>${ddi.animal} 2027년 운세</b></a>`}(사주첩)</p>
 </section>
 <section>
 <h2>같은 ${ddi.animal} 해</h2>
@@ -507,7 +507,7 @@ ${rows}
 <p>${ddi.trait}</p>
 <h3>연애</h3><p>${ddi.love}</p>
 <h3>일</h3><p>${ddi.work}</p>
-<p class="callout">띠는 태어난 해의 지지(地支) 하나만 보는 것이라, 같은 띠라도 태어난 날의 일주에 따라 성격이 크게 다릅니다. 정확한 생년월일로 <a href="/">내 생일 페이지</a>를 열어 일주까지 확인해 보세요.</p>
+<p class="callout">띠는 태어난 해의 지지(地支) 하나만 보는 것이라, 같은 띠라도 태어난 날의 일주에 따라 성격이 크게 다릅니다. 정확한 생년월일로 <a href="/">내 생일 페이지</a>를 열어 일주까지 확인해 보세요. 2027 정미년의 ${ddi.animal} 흐름은 <a href="${SAJU}/2027/ddi/${ddi.slug}/"><b>사주첩 2027년 ${ddi.animal} 운세</b></a>에서 총운·월별·출생연도별로 이어집니다.</p>
 </section>
 <section>
 <h2>다른 띠</h2>
