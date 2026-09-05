@@ -141,6 +141,7 @@ function school(y, m) {
 const GA = `<script async src="https://www.googletagmanager.com/gtag/js?id=G-JCDJSNZX4J"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-JCDJSNZX4J');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9924140539322407" crossorigin="anonymous"></script>`;
+const SAJU_ICON = `<svg width="18" height="18" viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="1.5" width="27" height="27" rx="6" fill="#B8382D"/><text x="15" y="20.5" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="15" font-weight="600" fill="#F6F1E8">四</text></svg>`;
 const BRAND_SVG = `<svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="1.5" width="27" height="27" rx="5" fill="#B8382D"/><text x="15" y="13.5" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="10" font-weight="600" fill="#F6F1E8">生</text><text x="15" y="25" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="10" font-weight="600" fill="#F6F1E8">日</text></svg>`;
 
 function shell(o) {
@@ -168,8 +169,11 @@ ${ld}
 <body>
 <div class="app"${o.birth ? ` data-birth="${o.birth}"` : ''}>
 <header class="hdr">
-  <a class="brand" href="/">${BRAND_SVG}<span class="brand-name">생일첩</span></a>
-  <nav class="nav"><a href="/#years">연도별</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a><a href="${SAJU}/">사주첩</a></nav>
+  <div class="brand-row">
+    <a class="brand" href="/">${BRAND_SVG}<span class="brand-name">생일첩</span></a>
+    <a class="sis-chip" href="${SAJU}/" title="사주첩 — 여덟 글자에 담긴 당신의 이야기">${SAJU_ICON}<span>사주첩</span></a>
+  </div>
+  <nav class="nav"><a href="/#years">연도별</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
 </header>
 ${o.body}
 <footer>
