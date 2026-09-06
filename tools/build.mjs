@@ -142,9 +142,6 @@ function school(y, m) {
 const GA = `<script async src="https://www.googletagmanager.com/gtag/js?id=G-JCDJSNZX4J"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-JCDJSNZX4J');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9924140539322407" crossorigin="anonymous"></script>`;
-const SAJU_ICON = `<svg width="18" height="18" viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="1.5" width="27" height="27" rx="6" fill="#B8382D"/><text x="15" y="20.5" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="15" font-weight="600" fill="#F6F1E8">四</text></svg>`;
-const DREAM_ICON = `<svg width="18" height="18" viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="1.5" width="27" height="27" rx="6" fill="#B8382D"/><text x="15" y="20.5" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="15" font-weight="600" fill="#F6F1E8">夢</text></svg>`;
-const TAROT_ICON = DREAM_ICON.replace('夢', '占');
 const TAROT = 'http://tarot.sajucheop.com';
 const BRAND_SVG = `<svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="1.5" width="27" height="27" rx="5" fill="#B8382D"/><text x="15" y="13.5" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="10" font-weight="600" fill="#F6F1E8">生</text><text x="15" y="25" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="10" font-weight="600" fill="#F6F1E8">日</text></svg>`;
 
@@ -173,13 +170,14 @@ ${ld}
 </head>
 <body>
 <div class="app"${o.birth ? ` data-birth="${o.birth}"` : ''}>
+<nav class="family-bar" aria-label="첩 시리즈">
+  <a class="fb-item" href="${SAJU}/" title="사주첩 — 사주풀이"><i aria-hidden="true">四</i>사주첩</a>
+  <a class="fb-item on" href="/" aria-current="page"><i aria-hidden="true">生</i>생일첩</a>
+  <a class="fb-item" href="https://dream.sajucheop.com/" title="꿈첩 — 상황별 꿈해몽"><i aria-hidden="true">夢</i>꿈첩</a>
+  <a class="fb-item" href="${TAROT}/" title="타로첩 — 타로 카드 78장 의미"><i aria-hidden="true">占</i>타로첩</a>
+</nav>
 <header class="hdr">
-  <div class="brand-row">
-    <a class="brand" href="/">${BRAND_SVG}<span class="brand-name">생일첩</span></a>
-    <a class="sis-chip" href="${SAJU}/" title="사주첩 — 여덟 글자에 담긴 당신의 이야기">${SAJU_ICON}<span>사주첩</span></a>
-    <a class="sis-chip" href="https://dream.sajucheop.com/" title="꿈첩 — 상황별 꿈해몽">${DREAM_ICON}<span>꿈첩</span></a>
-    <a class="sis-chip" href="${TAROT}/" title="타로첩 — 타로 카드 78장 의미">${TAROT_ICON}<span>타로첩</span></a>
-  </div>
+  <a class="brand" href="/">${BRAND_SVG}<span class="brand-name">생일첩</span></a>
   <nav class="nav"><a href="/age/">만나이</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
 </header>
 ${o.body}
