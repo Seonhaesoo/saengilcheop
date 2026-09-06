@@ -172,9 +172,9 @@ ${ld}
 <div class="app"${o.birth ? ` data-birth="${o.birth}"` : ''}>
 <nav class="family-bar" aria-label="첩 시리즈">
   <a class="fb-item" href="${SAJU}/" title="사주첩 — 사주풀이"><i aria-hidden="true">四</i>사주첩</a>
-  <a class="fb-item on" href="/" aria-current="page"><i aria-hidden="true">生</i>생일첩</a>
-  <a class="fb-item" href="https://dream.sajucheop.com/" title="꿈첩 — 상황별 꿈해몽"><i aria-hidden="true">夢</i>꿈첩</a>
-  <a class="fb-item" href="${TAROT}/" title="타로첩 — 타로 카드 78장 의미"><i aria-hidden="true">占</i>타로첩</a>
+  <a class="fb-item on" href="/" aria-current="page"><i aria-hidden="true">生</i>생일 사전</a>
+  <a class="fb-item" href="https://dream.sajucheop.com/" title="꿈첩 — 상황별 꿈해몽"><i aria-hidden="true">夢</i>꿈해몽</a>
+  <a class="fb-item" href="${TAROT}/" title="타로첩 — 타로 카드 78장 의미"><i aria-hidden="true">占</i>타로</a>
 </nav>
 <header class="hdr">
   <a class="brand" href="/">${BRAND_SVG}<span class="brand-name">생일첩</span></a>
@@ -182,7 +182,7 @@ ${ld}
 </header>
 ${o.body}
 <footer>
-  <div class="frow"><span>© 생일첩 · <a href="${SAJU}/">사주첩</a> · <a href="https://dream.sajucheop.com/">꿈첩</a> · <a href="${TAROT}/">타로첩</a> 자매 사이트</span><nav><a href="/about/">소개</a><a href="/terms/">이용약관</a><a href="/privacy/">개인정보</a></nav></div>
+  <div class="frow"><span>© 생일첩 · <a href="${SAJU}/">사주첩</a> · <a href="https://dream.sajucheop.com/">꿈해몽</a> · <a href="${TAROT}/">타로</a> 자매 사이트</span><nav><a href="/about/">소개</a><a href="/terms/">이용약관</a><a href="/privacy/">개인정보</a></nav></div>
   <p class="fnote">${o.footNote || '나이·기념일은 계산 결과이며, 띠·별자리·사주 풀이는 전통 명리학과 점성술 이론에 바탕한 참고용 콘텐츠입니다.'}</p>
 </footer>
 </div>
