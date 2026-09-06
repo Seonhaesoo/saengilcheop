@@ -142,7 +142,7 @@ function school(y, m) {
 const GA = `<script async src="https://www.googletagmanager.com/gtag/js?id=G-JCDJSNZX4J"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-JCDJSNZX4J');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9924140539322407" crossorigin="anonymous"></script>`;
-const TAROT = 'http://tarot.sajucheop.com';
+const TAROT = 'https://tarot.sajucheop.com';
 const BRAND_SVG = `<svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="1.5" width="27" height="27" rx="5" fill="#B8382D"/><text x="15" y="13.5" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="10" font-weight="600" fill="#F6F1E8">生</text><text x="15" y="25" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="10" font-weight="600" fill="#F6F1E8">日</text></svg>`;
 
 function shell(o) {
@@ -660,7 +660,7 @@ function sitemaps() {
 }
 function copyStatic() {
   fs.cpSync(SRC, OUT, { recursive: true });
-  fs.writeFileSync(path.join(OUT, 'CNAME'), SITE.replace('https://', '') + '\n');
+  fs.writeFileSync(path.join(OUT, 'CNAME'), SITE.replace(/^https?:\/\//, '') + '\n');  // 스킴은 절대 넣지 않는다 — http 임시 전환 때 'http://...' 가 CNAME 에 들어가 인증서 발급이 멈췄던 원인
   fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 }
 
