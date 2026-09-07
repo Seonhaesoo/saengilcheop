@@ -156,6 +156,7 @@ ${GA}
 <title>${esc(o.title)}</title>
 <meta name="description" content="${esc(o.desc)}">
 <link rel="canonical" href="${SITE}${o.url}">
+<meta name="naver-site-verification" content="d694fc750bd35dbccec97db01433f485281201a5">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
