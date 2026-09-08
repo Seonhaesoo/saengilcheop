@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Test
+        run: node tools/test-school.mjs
       - name: Build site
         run: node tools/build.mjs
       - uses: actions/upload-pages-artifact@v3

@@ -14,6 +14,8 @@
 | `/md/{mm}-{dd}/` | 월일별 — 별자리·탄생석, 연도별 요일·띠·일주 표 | 366 |
 | `/ddi/{slug}/` | 12띠 — 해당 연도와 나이, 성격 | 12 |
 | `/zodiac/{slug}/` | 12별자리 | 12 |
+| `/school/{y}/` | 출생연도별 학년 — 지금 몇 학년, 초·중·고 입학·졸업 연도, 수능 연도, 학번, 주민등록증·투표·성년·연금 등 법적 기준 나이 (1950년~올해) | 77 |
+| `/age/` `/dday/` `/school/` `/cal/{y}/` | 만나이·디데이·학년 계산기(브라우저 계산), 연도별 달력·공휴일 | |
 
 나이·D-day는 빌드 시점 값을 넣고, `js/live.js`가 방문자의 오늘 날짜로 다시 계산한다.
 
@@ -22,6 +24,7 @@
 ```
 node tools/build.mjs                    # 전체 (약 30초, dist/ 생성)
 node tools/build.mjs --from 1994 --to 1996   # 부분 빌드 (개발용)
+node tools/test-school.mjs              # 학년·입학 연도·법적 나이 계산 테스트
 node server.js                          # http://localhost:8322
 ```
 
@@ -31,15 +34,15 @@ node server.js                          # http://localhost:8322
 
 ```
 engine/      사주첩 엔진 복사본 — manseryeok.js(만세력), vendor-korean-lunar.js(음력), characters.js(일간 캐릭터)
-data/        ilju.mjs(60일주 본문, 사주첩과 동일), meta.mjs(12띠·12별자리·탄생석·연금 연령)
+data/        ilju.mjs(60일주 본문, 사주첩과 동일), meta.mjs(12띠·12별자리·탄생석·연금 연령), holidays.mjs(공휴일), school.mjs(학년·입학 연도·법적 나이)
 src/         그대로 복사되는 정적 파일 (css, js/live.js, favicon)
-tools/       build.mjs(생성기), engine.mjs(Node 로더)
+tools/       build.mjs(생성기), hubs.mjs(계산기·달력 허브), school.mjs(학년 페이지), engine.mjs(Node 로더), test-school.mjs(테스트)
 ```
 
 ## 계산 기준
 
 - 띠: 설날(음력 1월 1일) 기준을 본문에, 사주 기준(입춘 시각)을 함께 표시
 - 절기: 태양 황경을 직접 계산 (사주첩 엔진)
-- 빠른 생일: 2002년생까지 1~2월생은 전년도와 같은 학년으로 계산
+- 빠른 생일: 2002년생까지 1~2월생은 전년도와 같은 학년으로 계산 (2007년 개정 초·중등교육법이 2009학년도 입학생부터 적용). 2003년 1~2월생은 법 기준 2010년 입학이지만 조기입학으로 2009년에 들어간 경우도 있어 학년 페이지에서 두 경우를 함께 표시
 - 국민연금 수급 개시: 출생연도별 60~65세
 - 별자리 날짜: 국내 통용 기준 (사수 11/23~12/24, 염소 12/25~1/19)

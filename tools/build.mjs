@@ -5,6 +5,7 @@
  *  /md/{mm}-{dd}/    월일별 (별자리·탄생석·연도표)
  *  /ddi/{slug}/      12띠
  *  /zodiac/{slug}/   12별자리
+ *  /school/{y}/      출생연도별 학년·입학·졸업 연도·법적 나이 (tools/school.mjs, 1950 ~ 올해)
  *  사용: node tools/build.mjs [--from 1990 --to 1995]  (범위 생략 시 1940 ~ 올해)
  */
 import fs from 'node:fs';
@@ -13,6 +14,8 @@ import { loadEngine, kstToday, ROOT_DIR } from './engine.mjs';
 import { ILJU, UN_LINE, SPOUSE_LINE } from '../data/ilju.mjs';
 import { DDI, STEM_COLOR, STEM_COLOR_WORD, ZODIAC, BIRTHSTONE, pensionAge, zodiacOf } from '../data/meta.mjs';
 import { buildHubs } from './hubs.mjs';
+import { buildSchool, schoolUrl, SCHOOL_Y0 } from './school.mjs';
+import { schoolOf, gradeList } from '../data/school.mjs';
 
 const { M, I, C, Lunar } = loadEngine();
 const SITE = 'http://saengil.sajucheop.com';
@@ -132,11 +135,7 @@ function ages(y, m, d) {
   const dday = dn(nb.y, nb.m, nb.d) - dn(today.y, today.m, today.d);
   return { man, yeon: today.y - y, se: today.y - y + 1, days, weeks: Math.floor(days / 7), nb, dday };
 }
-function school(y, m) {
-  const early = y <= 2002 && m <= 2;            /* 빠른 생일: 2002년생까지 */
-  const base = early ? y - 1 : y;
-  return { early, elem: base + 7, hsGrad: base + 19, univ: base + 19, hakbun: pad((base + 19) % 100) };
-}
+const school = schoolOf;   /* 빠른 생일(2002년생까지 1~2월생) 포함 — data/school.mjs */
 
 /* ---------- 셸 ---------- */
 const GA = `<script async src="https://www.googletagmanager.com/gtag/js?id=G-JCDJSNZX4J"></script>
@@ -179,7 +178,7 @@ ${ld}
 </nav>
 <header class="hdr">
   <a class="brand" href="/">${BRAND_SVG}<span class="brand-name">생일첩</span></a>
-  <nav class="nav"><a href="/age/">만나이</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
+  <nav class="nav"><a href="/age/">만나이</a><a href="/school/">학년</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
 </header>
 ${o.body}
 <footer>
@@ -233,7 +232,7 @@ function dayPage(x) {
   ];
   const mileRows = mile.map(([k, v]) => {
     const past = dn(v.y, v.m, v.d) <= dn(today.y, today.m, today.d);
-    const link = v.y <= Y1 && v.y >= Y0 ? `<a href="${dayUrl(v.y, v.m, v.d)}">${fmt(v.y, v.m, v.d)}</a>` : fmt(v.y, v.m, v.d);
+    const link = past && v.y <= Y1 && v.y >= Y0 ? `<a href="${dayUrl(v.y, v.m, v.d)}">${fmt(v.y, v.m, v.d)}</a>` : fmt(v.y, v.m, v.d);   /* 오늘 이후 날짜 페이지는 없다 */
     return `<tr><td>${k}</td><td>${link}</td><td>${WD[weekday(v.y, v.m, v.d)]}</td><td class="note">${past ? '지남' : ''}</td></tr>`;
   }).join('\n');
   const sameDay = [];
@@ -287,7 +286,7 @@ ${mileRows}
   <li><strong>대학 입학 (재수 없이)</strong> — ${sc.univ}년, <strong>${sc.hakbun}학번</strong></li>
   <li><strong>성년</strong> — ${addYears(y, m, d, 19).y}년 ${m}월 ${d}일 (만 19세)</li>
 </ul>
-<p class="note">${sc.early ? `${y}년 1~2월생은 이른바 '빠른 ${pad(y % 100)}'으로, 제도상 ${y - 1}년생과 같은 학년으로 입학했습니다. 실제 입학 연도는 취학 유예·조기 입학 여부에 따라 다를 수 있어요.` : (y >= 2003 && m <= 2 ? '2003년생부터는 1~2월생도 같은 해 출생자와 함께 입학합니다(빠른 생일 제도 폐지).' : '취학 유예·조기 입학·재수 여부에 따라 실제와 다를 수 있습니다.')}</p>
+<p class="note">${sc.early ? `${y}년 1~2월생은 이른바 '빠른 ${pad(y % 100)}'으로, 제도상 ${y - 1}년생과 같은 학년으로 입학했습니다. 실제 입학 연도는 취학 유예·조기 입학 여부에 따라 다를 수 있어요.` : (y >= 2003 && m <= 2 ? '2003년생부터는 1~2월생도 같은 해 출생자와 함께 입학합니다(빠른 생일 제도 폐지).' : '취학 유예·조기 입학·재수 여부에 따라 실제와 다를 수 있습니다.')}${y >= SCHOOL_Y0 ? ` <a href="${schoolUrl(y)}">${y}년생 지금 몇 학년? 입학·졸업 연도표</a>` : ''}</p>
 </section>
 
 <section>
@@ -428,7 +427,8 @@ function yearPage(y) {
 <ul>
   <li><strong>초등학교 입학</strong> — ${sc.elem}년 3월${scE.early ? ` (1~2월생은 ${scE.elem}년, 빠른 ${pad(y % 100)})` : ''}</li>
   <li><strong>고등학교 졸업</strong> — ${sc.hsGrad}년 2월</li>
-  <li><strong>성년(만 19세)</strong> — ${y + 19}년 생일</li>
+${y >= SCHOOL_Y0 ? `  <li><strong>지금 몇 학년?</strong> — <a href="${schoolUrl(y)}">${y}년생 학년·입학·졸업 연도표와 성인이 되는 해</a></li>
+` : ''}  <li><strong>성년(만 19세)</strong> — ${y + 19}년 생일</li>
   <li><strong>서른(만 30세)</strong> — ${y + 30}년 · <strong>마흔</strong> — ${y + 40}년 · <strong>쉰</strong> — ${y + 50}년</li>
   <li><strong>환갑(만 60세)</strong> — ${y + 60}년 생일 · <strong>칠순</strong> — ${y + 69}년 · <strong>팔순</strong> — ${y + 79}년</li>
   <li><strong>국민연금 수급 개시</strong> — 만 ${pensionAge(y)}세, ${y + pensionAge(y)}년 생일부터</li>
@@ -571,6 +571,8 @@ function homePage() {
     decades.push(`<h3>${d0}년대</h3><div class="grid g6">${ys.join('')}</div>`);
   }
   const todayMd = mdUrl(today.m, today.d);
+  const sy = today.m >= 3 ? today.y : today.y - 1;
+  const gradeChips = gradeList(sy - 7).map((x) => `<a href="${schoolUrl(sy - 7 - x.k)}"><b>${x.short}</b><small>${sy - 7 - x.k}년생</small></a>`).join('');
   const body = `
 <h1>생일첩 <span style="font-size:15px;color:var(--faint);font-weight:400">生日帖</span></h1>
 <p class="lead">생년월일 하나로 <strong>만 나이·연나이·세는나이</strong>, <strong>띠와 별자리</strong>, <strong>음력 생일</strong>, 태어난 요일, 환갑·칠순 날짜, 학번, 그리고 사주의 <strong>일주 풀이</strong>까지 한 장에 담습니다. 나이는 매일 자동으로 계산돼요.</p>
@@ -583,19 +585,24 @@ function homePage() {
 <h2>계산기와 달력</h2>
 <div class="grid g3">
 <a href="/age/"><b>만 나이 계산기</b><small>만·연·세는나이</small></a>
+<a href="/school/"><b>학년 계산기</b><small>입학·졸업 연도, 학번</small></a>
 <a href="/dday/"><b>디데이 · 100일</b><small>기념일 날짜 계산</small></a>
 <a href="/cal/${today.y}/"><b>${today.y}년 달력</b><small>공휴일·연휴</small></a>
 <a href="/cal/${today.y + 1}/"><b>${today.y + 1}년 달력</b><small>공휴일·대체공휴일</small></a>
 <a href="/cal/${today.y + 2}/"><b>${today.y + 2}년 달력</b><small>설날·추석 날짜</small></a>
-<a href="/md/"><b>월일별 생일</b><small>별자리·탄생석</small></a>
 </div>
+</section>
+<section>
+<h2>${sy}학년도 학년별 출생연도</h2>
+<div class="grid g6">${gradeChips}</div>
+<p class="note">3월 입학 기준. 1~2월생은 2002년생까지 한 해 위 학년(빠른 년생)입니다. <a href="/school/">출생연도별 학년·입학 연도·성인 나이 계산</a></p>
 </section>
 <section>
 <h2>무엇을 알 수 있나요</h2>
 <ul>
   <li><strong>나이</strong> — 만 나이(법적 나이), 연나이, 세는나이를 오늘 날짜 기준으로. 태어난 지 며칠째인지, 다음 생일까지 며칠 남았는지.</li>
   <li><strong>기념일</strong> — 100일·1,000일·10,000일, 성년, 환갑·칠순·팔순 날짜와 요일, 국민연금 수급 개시 연도.</li>
-  <li><strong>학교</strong> — 초등학교 입학 연도, 고등학교 졸업 연도, 학번(빠른 생일 반영).</li>
+  <li><strong>학교</strong> — 초등학교 입학 연도, 고등학교 졸업 연도, 학번(빠른 생일 반영). <a href="/school/">지금 몇 학년인지</a>와 법적으로 어른이 되는 해까지.</li>
   <li><strong>띠·별자리·음력</strong> — 색띠 이름, 설날과 입춘 기준의 차이, 별자리와 탄생석, 음력 생일과 손없는 날.</li>
   <li><strong>사주</strong> — 년주·월주·일주와 일간 캐릭터, 60일주 풀이. 시주와 대운은 <a href="${SAJU}/">사주첩</a>에서 이어집니다.</li>
 </ul>
@@ -695,7 +702,9 @@ DDI.forEach(ddiPage);
 ZODIAC.forEach(zodiacPage);
 indexPages();
 homePage();
-buildHubs({ shell, write, esc, pad, iso, fmt, num, WD, today, Y0, Y1, SITE, SAJU, dayUrl, monthUrl, yearUrl, mdUrl, dn, civ, weekday, isLeap, dim, addDays, addYears, lunarOf, lunarNewYear, yearTerms, ddiOfYear, stemOfYear, colorDdi, colorDdiShort, yearGanji, crumbs, M, I, Lunar, DDI, BUILD_ISO });
+const ctx = { shell, write, esc, pad, iso, fmt, num, WD, today, Y0, Y1, SITE, SAJU, dayUrl, monthUrl, yearUrl, mdUrl, dn, civ, weekday, isLeap, dim, addDays, addYears, lunarOf, lunarNewYear, yearTerms, ddiOfYear, stemOfYear, colorDdi, colorDdiShort, yearGanji, crumbs, M, I, Lunar, DDI, BUILD_ISO };
+buildHubs(ctx);
+buildSchool(ctx);
 staticPages();
 sitemaps();
 console.log(`생일첩 빌드 완료: ${Y0}~${Y1}, 날짜 ${count}장 + 기타 ${urls.pages.length}장, ${((Date.now() - t0) / 1000).toFixed(1)}s${FULL ? '' : ' (부분 빌드)'}`);

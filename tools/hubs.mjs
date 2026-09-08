@@ -273,7 +273,7 @@ ${rows.join('\n')}
 <h3>기준일을 과거나 미래로 바꿔도 되나요?</h3>
 <p>됩니다. 입학·입사 당시 나이나, 특정 날짜에 만 19세가 되는지 같은 걸 확인할 때 기준일을 바꿔 보세요.</p>
 </section>
-<p class="note"><a href="/dday/">디데이·100일 계산기</a> · <a href="${calUrl(today.y)}">${today.y}년 달력·공휴일</a> · <a href="/">생년월일로 내 페이지 열기</a></p>
+<p class="note"><a href="/school/">학년 계산기 — 출생연도별 입학·졸업 연도</a> · <a href="/dday/">디데이·100일 계산기</a> · <a href="${calUrl(today.y)}">${today.y}년 달력·공휴일</a> · <a href="/">생년월일로 내 페이지 열기</a></p>
 `;
     write(url, shell({ url, title, desc, body, extraBody: `<script>window.LNY=${JSON.stringify(lny)};</script><script src="/js/tools.js" defer></script>`, jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: '만 나이 계산기', url }]), { '@context': 'https://schema.org', '@type': 'WebApplication', name: '만 나이 계산기', url: c.SITE + url, applicationCategory: 'UtilityApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0' } }] }));
   }
