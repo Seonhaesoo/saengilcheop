@@ -27,7 +27,7 @@ export function schoolDesc(y, today, ddiWord) {
 
 export function buildSchool(c) {
   const { shell, write, pad, today, Y0, Y1, SAJU, yearUrl, ddiOfYear, colorDdi, crumbs } = c;
-  const MOMJA = 'https://momja.com';
+  const MOMJA = 'https://bodyzip.com';
   const Y1s = today.y;
   const sy = schoolYearOf(today);
   const past = (yr, mo) => today.y > yr || (today.y === yr && today.m >= mo);
@@ -166,7 +166,7 @@ ${earlySection}
 ${faq3}
 </section>
 
-<p class="callout">${child ? `자라는 아이의 예상 키는 부모 키로 계산하는 <a href="${MOMJA}/child-height/"><b>몸자 아이 키 예측</b></a>에서, ${ddi.animal} 아이의 2027년 흐름은 ${sajuDdi(y)}에서 이어집니다.` : `${y}년생 ${ddi.animal}의 2027년 흐름은 ${sajuDdi(y)}에서, 태어난 날까지 넣은 사주는 <a href="${SAJU}/">사주첩</a>에서 볼 수 있습니다.`}</p>
+<p class="callout">${child ? `자라는 아이의 예상 키는 부모 키로 계산하는 <a href="${MOMJA}/child-height/"><b>바디집 아이 키 예측</b></a>에서, ${ddi.animal} 아이의 2027년 흐름은 ${sajuDdi(y)}에서 이어집니다.` : `${y}년생 ${ddi.animal}의 2027년 흐름은 ${sajuDdi(y)}에서, 태어난 날까지 넣은 사주는 <a href="${SAJU}/">사주첩</a>에서 볼 수 있습니다.`}</p>
 <p class="pn">${y - 1 >= SCHOOL_Y0 ? `<a href="${schoolUrl(y - 1)}">← ${y - 1}년생</a>` : '<span></span>'}${y + 1 <= Y1s ? `<a href="${schoolUrl(y + 1)}">${y + 1}년생 →</a>` : '<span></span>'}</p>
 <p class="note">${yLink(y, `${y}년생 나이·띠·기념일`)} · <a href="/ddi/${ddi.slug}/">${ddi.animal} 해와 나이</a> · <a href="/age/">만 나이 계산기</a> · <a href="/">생년월일로 내 페이지 열기</a></p>
 `;
