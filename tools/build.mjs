@@ -183,7 +183,7 @@ ${ld}
 ${o.body}
 <footer>
   <div class="frow"><span>© 생일첩 · <a href="${SAJU}/">사주첩</a> · <a href="https://dream.sajucheop.com/">꿈해몽</a> · <a href="${TAROT}/">타로</a> · <a href="https://bodyzip.com/">바디집</a> 자매 사이트</span><nav><a href="/about/">소개</a><a href="/terms/">이용약관</a><a href="/privacy/">개인정보</a></nav></div>
-  <p class="fnote">${o.footNote || '나이·기념일은 계산 결과이며, 띠·별자리·사주 풀이는 전통 명리학과 점성술 이론에 바탕한 참고용 콘텐츠입니다.'}</p>
+  <p class="fnote">${o.footNote || '나이·기념일은 계산 결과이며, 띠·별자리·사주 풀이는 전통 명리학과 점성술 이론을 바탕으로 한 참고용 콘텐츠입니다.'}</p>
 </footer>
 </div>
 ${o.extraBody || ''}
@@ -382,7 +382,7 @@ ${sons ? `<p class="note">손없는 날: ${sons}</p>` : ''}
 <section>
 <h2>이 달의 별자리와 탄생석</h2>
 ${zs.map((z) => `<h3>${z.sym} ${z.kor} (${z.from[0]}월 ${z.from[1]}일 ~ ${z.to[0]}월 ${z.to[1]}일)</h3><p>${z.trait} <a href="/zodiac/${z.slug}/">더 보기</a></p>`).join('')}
-<p><strong>${m}월의 탄생석 ${BIRTHSTONE[m].name}</strong>(${BIRTHSTONE[m].en})은 ${BIRTHSTONE[m].meaning}을 뜻합니다.</p>
+<p><strong>${m}월의 탄생석</strong>은 ${BIRTHSTONE[m].name}(${BIRTHSTONE[m].en}), 뜻은 ${BIRTHSTONE[m].meaning}입니다.</p>
 </section>
 <section>
 <h2>${y}년의 다른 달</h2>
@@ -638,15 +638,15 @@ function staticPages() {
 <p>문의: <a href="${SAJU}/">사주첩</a> 페이지 하단의 연락처를 이용해 주세요.</p>`);
   doc('/terms/', '이용약관', '생일첩 이용약관.', `
 <p>생일첩(이하 "사이트")은 생년월일을 바탕으로 나이·기념일·띠·별자리·음력·사주 정보를 계산해 제공하는 무료 정보 서비스입니다.</p>
-<h3>1. 콘텐츠의 성격</h3><p>나이·요일·기념일·음력 날짜는 계산 결과이며 최대한 정확하게 제공하도록 노력하지만, 법적 효력이 있는 증명 자료가 아닙니다. 입학·졸업 연도, 연금 수급 연령 등은 일반적인 제도를 기준으로 한 추정치로 개인의 사정에 따라 다를 수 있습니다. 띠·별자리·사주 풀이는 전통 명리학과 점성술 이론을 바탕으로 한 참고·오락용 콘텐츠이며, 중요한 결정의 근거로 삼지 마세요.</p>
-<h3>2. 책임의 한계</h3><p>사이트는 콘텐츠의 이용으로 발생한 어떠한 손해에 대해서도 책임지지 않습니다.</p>
+<h3>1. 콘텐츠의 성격</h3><p>나이·요일·기념일·음력 날짜는 계산 결과입니다. 최대한 정확하게 계산하지만 법적 효력이 있는 증명 자료는 아닙니다. 입학·졸업 연도나 연금 수급 연령은 일반적인 제도를 기준으로 어림한 값이라 개인 사정에 따라 다를 수 있습니다. 띠·별자리·사주 풀이는 전통 명리학과 점성술 이론을 바탕으로 한 참고·오락용 콘텐츠이며, 중요한 결정의 근거로 삼지 마세요.</p>
+<h3>2. 책임의 한계</h3><p>사이트는 콘텐츠를 이용하다 생긴 어떤 손해에도 책임지지 않습니다.</p>
 <h3>3. 저작권</h3><p>사이트의 글과 디자인은 생일첩에 저작권이 있습니다. 출처를 밝힌 인용과 링크는 자유롭게 하실 수 있으나, 무단 복제·재배포는 금지합니다.</p>
 <h3>4. 광고</h3><p>사이트는 Google AdSense 광고를 게재하며, 광고 수익으로 운영됩니다.</p>
 <p class="note">시행일: ${BUILD_ISO}</p>`);
   doc('/privacy/', '개인정보처리방침', '생일첩 개인정보처리방침.', `
 <p>생일첩은 방문자의 개인정보를 소중히 다룹니다.</p>
 <h3>1. 수집하는 정보</h3><p>사이트는 회원가입을 받지 않으며, 이름·연락처 등 개인정보를 직접 수집하지 않습니다. 생년월일 검색은 브라우저 안에서 주소 이동으로만 처리되며 서버에 저장되지 않습니다.</p>
-<h3>2. 쿠키와 제3자 서비스</h3><p>사이트는 방문 통계를 위해 Google Analytics를, 광고 게재를 위해 Google AdSense를 사용합니다. Google은 쿠키를 이용해 방문 기록과 관심사에 기반한 광고를 보여줄 수 있습니다. 맞춤 광고는 <a href="https://www.google.com/settings/ads" rel="noopener">Google 광고 설정</a>에서, 쿠키 사용은 브라우저 설정에서 거부할 수 있습니다. Google의 데이터 사용에 대한 자세한 내용은 <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">Google 정책 페이지</a>를 참고하세요.</p>
+<h3>2. 쿠키와 제3자 서비스</h3><p>사이트는 방문 통계를 위해 Google Analytics를, 광고 게재를 위해 Google AdSense를 사용합니다. Google은 쿠키를 이용해 방문 기록과 관심사에 맞춘 광고를 보여줄 수 있습니다. 맞춤 광고는 <a href="https://www.google.com/settings/ads" rel="noopener">Google 광고 설정</a>에서, 쿠키 사용은 브라우저 설정에서 거부할 수 있습니다. Google이 데이터를 어떻게 쓰는지는 <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">Google 정책 페이지</a>를 참고하세요.</p>
 <h3>3. 정보의 보관과 파기</h3><p>사이트가 직접 보관하는 개인정보는 없습니다. 통계·광고 서비스에서 처리되는 정보는 각 서비스의 정책을 따릅니다.</p>
 <h3>4. 문의</h3><p>개인정보 관련 문의는 <a href="${SAJU}/">사주첩</a>의 연락처로 보내 주세요.</p>
 <p class="note">시행일: ${BUILD_ISO}</p>`);
