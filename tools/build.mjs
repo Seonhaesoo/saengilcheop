@@ -182,7 +182,7 @@ ${ld}
 </header>
 ${o.body}
 <footer>
-  <div class="frow"><span>© 생일첩 · <a href="${SAJU}/">사주첩</a> · <a href="https://dream.sajucheop.com/">꿈해몽</a> · <a href="${TAROT}/">타로</a> 자매 사이트</span><nav><a href="/about/">소개</a><a href="/terms/">이용약관</a><a href="/privacy/">개인정보</a></nav></div>
+  <div class="frow"><span>© 생일첩 · <a href="${SAJU}/">사주첩</a> · <a href="https://dream.sajucheop.com/">꿈해몽</a> · <a href="${TAROT}/">타로</a> · <a href="https://bodyzip.com/">바디집</a> 자매 사이트</span><nav><a href="/about/">소개</a><a href="/terms/">이용약관</a><a href="/privacy/">개인정보</a></nav></div>
   <p class="fnote">${o.footNote || '나이·기념일은 계산 결과이며, 띠·별자리·사주 풀이는 전통 명리학과 점성술 이론에 바탕한 참고용 콘텐츠입니다.'}</p>
 </footer>
 </div>
