@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: 24
       - name: Test
-        run: node tools/test-school.mjs
+        run: node tools/test-school.mjs && node tools/test-holidays.mjs
       - name: Build site
         run: node tools/build.mjs
       - uses: actions/upload-pages-artifact@v5

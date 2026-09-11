@@ -1,17 +1,23 @@
-/* 대한민국 공휴일 계산 — 「관공서의 공휴일에 관한 규정」 기준
- *  - 고정: 신정 1/1, 삼일절 3/1, 어린이날 5/5, 현충일 6/6, 광복절 8/15, 개천절 10/3, 한글날 10/9, 성탄절 12/25
+/* 대한민국 공휴일 계산 — 「관공서의 공휴일에 관한 규정」 기준 (2026. 4. 30. 대통령령 제36290호 개정까지 반영)
+ *  - 고정: 신정 1/1, 삼일절 3/1, 노동절 5/1, 어린이날 5/5, 현충일 6/6, 제헌절 7/17, 광복절 8/15, 개천절 10/3, 한글날 10/9, 성탄절 12/25
  *  - 음력: 설날(음 1/1 전날·당일·다음날), 부처님오신날(음 4/8), 추석(음 8/15 전날·당일·다음날)
  *  - 선거일: 공직선거법상 임기 만료 선거일 (아래 표)
- *  - 대체공휴일: 삼일절·광복절·개천절·한글날·어린이날·부처님오신날·성탄절이 토·일 또는 다른 공휴일과 겹치면 다음 비공휴일,
+ *  - 대체공휴일: 삼일절·제헌절·광복절·개천절·한글날·노동절·어린이날·부처님오신날·성탄절이 토·일 또는 다른 공휴일과 겹치면 다음 비공휴일,
  *               설·추석 연휴는 일요일 또는 다른 공휴일과 겹칠 때만 (토요일은 해당 없음). 신정·현충일·선거일은 대체 없음.
+ *  - 노동절·제헌절은 「공휴일에 관한 법률」 개정으로 2026년에 공휴일이 됐다 (노동절 2026. 5. 1., 제헌절 2026. 5. 11. 시행).
+ *    대체공휴일도 같은 날 시행이라 둘 다 2026년부터 적용하고 그 전 해에는 넣지 않는다 (SINCE).
+ *    2026년엔 두 날 모두 금요일이어서 실제 대체공휴일은 2027년(5/3·7/19)에 처음 생긴다.
  *  임시공휴일은 예측할 수 없으므로 포함하지 않는다. */
 
-export const SUBST_WEEKEND = new Set(['삼일절', '광복절', '개천절', '한글날', '어린이날', '부처님오신날', '성탄절']);
+/* 2026년에 공휴일이 된 날 — 공휴일(from)·대체공휴일(subst) 적용 시작 연도 */
+export const SINCE = { 노동절: { from: 2026, subst: 2026 }, 제헌절: { from: 2026, subst: 2026 } };
+export const SUBST_WEEKEND = new Set(['삼일절', '제헌절', '광복절', '개천절', '한글날', '노동절', '어린이날', '부처님오신날', '성탄절']);
+const substWeekend = (name, y) => SUBST_WEEKEND.has(name) && !(SINCE[name] && y < SINCE[name].subst);
 export const ELECTIONS = {
   2026: [6, 3, '제9회 전국동시지방선거'],
   2028: [4, 12, '제23대 국회의원 선거']
 };
-export const SUBST_NOTE = '대체공휴일은 삼일절·광복절·개천절·한글날·어린이날·부처님오신날·성탄절이 토·일요일이나 다른 공휴일과 겹칠 때, 설·추석 연휴는 일요일이나 다른 공휴일과 겹칠 때 그 다음 첫 번째 평일에 붙습니다. 신정·현충일·선거일은 대체공휴일이 없고, 정부가 따로 정하는 임시공휴일은 포함하지 않았습니다.';
+export const SUBST_NOTE = '대체공휴일은 삼일절·제헌절·광복절·개천절·한글날·노동절·어린이날·부처님오신날·성탄절이 토·일요일이나 다른 공휴일과 겹칠 때, 설·추석 연휴는 일요일이나 다른 공휴일과 겹칠 때 그 다음 첫 번째 평일에 붙습니다. 노동절(5월 1일)과 제헌절(7월 17일)은 2026년부터 공휴일입니다. 신정·현충일·선거일은 대체공휴일이 없고, 정부가 따로 정하는 임시공휴일은 포함하지 않았습니다.';
 
 /* h: { lunarToSolar(y,m,d) → {y,m,d}, weekday(y,m,d) → 0(일)~6(토), addDays({y,m,d}, n) → {y,m,d} } */
 export function holidaysOf(y, h) {
@@ -23,8 +29,10 @@ export function holidaysOf(y, h) {
   add(h.addDays(seol, -1), '설날 연휴', 'seol'); add(seol, '설날', 'seol'); add(h.addDays(seol, 1), '설날 연휴', 'seol');
   add(D(3, 1), '삼일절', 'samil');
   add(h.lunarToSolar(y, 4, 8), '부처님오신날', 'buddha');
+  if (y >= SINCE.노동절.from) add(D(5, 1), '노동절', 'labor');
   add(D(5, 5), '어린이날', 'children');
   add(D(6, 6), '현충일', 'memorial');
+  if (y >= SINCE.제헌절.from) add(D(7, 17), '제헌절', 'constitution');
   add(D(8, 15), '광복절', 'liberation');
   const chu = h.lunarToSolar(y, 8, 15);
   add(h.addDays(chu, -1), '추석 연휴', 'chuseok'); add(chu, '추석', 'chuseok'); add(h.addDays(chu, 1), '추석 연휴', 'chuseok');
@@ -51,7 +59,7 @@ export function holidaysOf(y, h) {
     const long = it.group === 'seol' || it.group === 'chuseok';
     let trigger = false;
     if (long) trigger = w === 0 || overlapsOther(it);
-    else if (SUBST_WEEKEND.has(it.name)) trigger = w === 0 || w === 6 || overlapsOther(it);
+    else if (substWeekend(it.name, y)) trigger = w === 0 || w === 6 || overlapsOther(it);
     if (!trigger || handled.has(k(it))) continue;
     handled.add(k(it));
     const start = long ? lastOfGroup(it.group) : it;
