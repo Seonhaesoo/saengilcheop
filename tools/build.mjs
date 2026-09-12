@@ -239,7 +239,9 @@ function dayPage(x) {
   for (let yy = y - 6; yy <= y + 6; yy++) {
     if (yy < Y0 || yy > Y1 || (m === 2 && d === 29 && !isLeap(yy))) continue;
     const g = M.ganjiName(...Object.values(M.dayPillarOf(yy, m, d)));
-    sameDay.push(`<a href="${dayUrl(yy, m, d)}"${yy === y ? ' class="cur"' : ''}><b>${yy}</b><small>${WD[weekday(yy, m, d)].slice(0, 1)} · ${g.kor}일</small></a>`);
+    /* 오늘 이후 날짜 페이지는 아직 없다(주간 빌드) — 링크 없이 흐리게 두어 404로 가지 않게 */
+    const href = dn(yy, m, d) <= dn(today.y, today.m, today.d) ? ` href="${dayUrl(yy, m, d)}"` : ' class="off" style="opacity:.45"';
+    sameDay.push(`<a${href}${yy === y ? ' class="cur"' : ''}><b>${yy}</b><small>${WD[weekday(yy, m, d)].slice(0, 1)} · ${g.kor}일</small></a>`);
   }
   const pv = addDays(y, m, d, -1), nx = addDays(y, m, d, 1);
   const pvOk = pv.y >= Y0, nxOk = nx.y <= Y1 && dn(nx.y, nx.m, nx.d) <= dn(today.y, today.m, today.d);
@@ -356,7 +358,8 @@ function monthPage(y, m, days) {
   }
   const zs = [...new Set(days.map((x) => x.zodiac.slug))].map((s) => ZODIAC.find((z) => z.slug === s));
   const terms = yearTerms(y).filter((t) => t.m === m).sort((a, b) => a.d - b.d);
-  const months = Array.from({ length: 12 }, (_, i) => i + 1).map((mm) => `<a href="${monthUrl(y, mm)}"${mm === m ? ' class="cur"' : ''}><b>${mm}월</b></a>`).join('');
+  /* 올해 남은 달의 페이지는 아직 없다 — 흐리게만 */
+  const months = Array.from({ length: 12 }, (_, i) => i + 1).map((mm) => y < today.y || mm <= today.m ? `<a href="${monthUrl(y, mm)}"${mm === m ? ' class="cur"' : ''}><b>${mm}월</b></a>` : `<a class="off" style="opacity:.45"><b>${mm}월</b></a>`).join('');
   const sons = days.filter((x) => x.lun && x.lun.son).map((x) => `<a href="${dayUrl(y, m, x.d)}">${x.d}일</a>`).join(', ');
   const lunFirst = days[0].lun, lunLast = days[days.length - 1].lun;
   const title = `${y}년 ${m}월 출생 달력 — 날짜별 일주·음력·요일 (${colorDdi(y)})`;
@@ -376,7 +379,7 @@ ${cells.join('\n')}
 </section>
 <section>
 <h2>${y}년 ${m}월의 절기</h2>
-<ul>${terms.map((t) => `<li><strong>${t.name}</strong> — <a href="${dayUrl(y, m, t.d)}">${m}월 ${t.d}일</a> ${pad(t.hh)}:${pad(t.mm)}${t.jeol ? ' (절입 — 이 시각부터 사주의 월주가 바뀝니다)' : ''}</li>`).join('')}</ul>
+<ul>${terms.map((t) => `<li><strong>${t.name}</strong> — ${dn(y, m, t.d) <= dn(today.y, today.m, today.d) ? `<a href="${dayUrl(y, m, t.d)}">${m}월 ${t.d}일</a>` : `${m}월 ${t.d}일`} ${pad(t.hh)}:${pad(t.mm)}${t.jeol ? ' (절입 — 이 시각부터 사주의 월주가 바뀝니다)' : ''}</li>`).join('')}</ul>
 ${sons ? `<p class="note">손없는 날: ${sons}</p>` : ''}
 </section>
 <section>
