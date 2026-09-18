@@ -153,6 +153,7 @@ function shell(o) {
 ${GA}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="max-image-preview:large">
+<link rel="alternate" type="application/rss+xml" title="새 글" href="/rss.xml">
 <title>${esc(o.title)}</title>
 <meta name="description" content="${esc(o.desc)}">
 <link rel="canonical" href="${SITE}${o.url}">
@@ -734,3 +735,6 @@ buildSchool(ctx);
 staticPages();
 sitemaps();
 console.log(`생일첩 빌드 완료: ${Y0}~${Y1}, 날짜 ${count}장 + 기타 ${urls.pages.length}장, ${((Date.now() - t0) / 1000).toFixed(1)}s${FULL ? '' : ' (부분 빌드)'}`);
+
+/* RSS 피드 — 네이버 서치어드바이저에 한 번 등록하면 새 글을 알아서 가져간다 (tools/feeds.mjs) */
+await import('./feeds.mjs');
