@@ -197,6 +197,9 @@ const crumbs = (items) => ({
   itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.name, item: SITE + it.url }))
 });
 
+const eul = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '을' : '를');   /* 받침에 맞는 조사 — 부귀를·정조를 */
+const yeyo = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '이에요' : '예요');
+const faqLd = (faq) => ({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 const urls = { pages: [], days: {} };
 function write(url, html, kind) {
   const file = path.join(OUT, url, 'index.html');
@@ -248,7 +251,7 @@ function dayPage(x) {
   const sajuDay = (y >= today.y && y <= today.y + 1) ? `<a href="${SAJU}/day/${iso(y, m, d)}/">이 날의 일진 보기(사주첩)</a> · ` : '';
   const seasonName = ['봄', '봄', '봄', '여름', '여름', '여름', '가을', '가을', '가을', '겨울', '겨울', '겨울'][x.monthP.branch >= 2 ? x.monthP.branch - 2 : x.monthP.branch + 10];
 
-  const title = `${y}년 ${m}월 ${d}일생 나이·띠·별자리·음력 생일 (${wd.slice(0, 1)}요일, ${ilju.kor}일주)`;
+  const title = `${y}년 ${m}월 ${d}일생 — ${x.zodiac.kor}·${x.ddi.animal}, 나이·음력 생일·일주 (${wd.slice(0, 1)}요일)`;
   const desc = `${fmt(y, m, d)}(${wd}) 태어난 사람은 ${today.y}년 기준 만 ${a.man}세. ${x.ddi.animal}, ${x.zodiac.kor}, 음력 ${lunTxt}, ${x.yearG.kor}년 ${x.monthG.kor}월 ${ilju.kor}일. 환갑·칠순 날짜와 학번, 사주 일주 풀이까지.`;
 
   const body = `
@@ -406,7 +409,7 @@ function yearPage(y) {
   for (let yy = y - 60; yy <= y + 60; yy += 12) if (yy >= Y0 && yy <= Y1) sameDdi.push(`<a href="${yearUrl(yy)}"${yy === y ? ' class="cur"' : ''}><b>${yy}</b><small>${colorDdiShort(yy)}</small></a>`);
   const months = Array.from({ length: 12 }, (_, i) => i + 1).filter((m) => y < today.y || m <= today.m).map((m) => `<a href="${monthUrl(y, m)}"><b>${m}월</b><small>${BIRTHSTONE[m].name}</small></a>`).join('');
   const zrows = ZODIAC.map((z) => `<tr><td><a href="/zodiac/${z.slug}/">${z.sym} ${z.kor}</a></td><td>${z.from[0]}월 ${z.from[1]}일 ~ ${z.to[0]}월 ${z.to[1]}일</td></tr>`).join('');
-  const title = `${y}년생 나이·띠·학번 — ${g.kor}년 ${colorDdi(y)}, 올해 만 ${yeon - 1}~${yeon}세`;
+  const title = `${y}년생 몇 살? ${today.y}년 만 ${yeon - 1}~${yeon}세 — ${colorDdi(y)}(${g.kor}년), 학번·띠·별자리`;
   const desc = `${y}년생은 ${g.kor}(${g.han})년 ${colorDdi(y)}. ${today.y}년 기준 만 ${yeon - 1}~${yeon}세(연나이 ${yeon}세, 세는나이 ${yeon + 1}세), ${sc.hakbun}학번. 설날 ${lny.m}월 ${lny.d}일, 입춘 ${ip.m}월 ${ip.d}일. 월별 출생 달력과 날짜별 일주.`;
   const body = `
 <div class="overline">생일첩 · 연도별</div>
@@ -464,11 +467,17 @@ function mdPage(m, d, rows) {
   const trs = rows.map((x) => `<tr><td><a href="${dayUrl(x.y, m, d)}">${x.y}년</a></td><td>${WD[x.w]}</td><td>${colorDdiShort(x.ddiYear)}</td><td><a href="${dayUrl(x.y, m, d)}">${x.dayG.kor}일주</a></td><td>${x.lun ? (x.lun.leap ? '윤' : '') + x.lun.m + '.' + x.lun.d : ''}</td></tr>`).join('\n');
   const pv = m === 1 && d === 1 ? { m: 12, d: 31 } : d === 1 ? { m: m - 1, d: dim(2000, m - 1) } : { m, d: d - 1 };
   const nx = m === 12 && d === 31 ? { m: 1, d: 1 } : d === dim(2000, m) ? { m: m + 1, d: 1 } : { m, d: d + 1 };
-  const title = `${m}월 ${d}일생 별자리·탄생석 — ${z.kor}, 연도별 요일·띠·일주표`;
-  const desc = `${m}월 ${d}일에 태어난 사람은 ${z.kor}(${z.sym}), 탄생석은 ${st.name}. ${Y0}년부터 ${Y1}년까지 ${m}월 ${d}일의 요일, 띠, 사주 일주, 음력 날짜를 한 표로.`;
+  const title = `${m}월 ${d}일 별자리는? ${z.kor} · 탄생석 ${st.name} — ${m}월 ${d}일생 띠·나이표`;
+  const desc = `${m}월 ${d}일에 태어난 사람의 별자리는 ${z.kor}(${z.sym}, ${z.from[0]}월 ${z.from[1]}일~${z.to[0]}월 ${z.to[1]}일), 탄생석은 ${st.name}이에요. ${Y0}~${Y1}년 ${m}월 ${d}일의 요일·띠·사주 일주·음력을 한 표로, 연도를 누르면 나이와 기념일까지.`;
+  const recent = rows.slice(-4).reverse().map((x) => `${x.y}년생은 ${ddiOfYear(x.ddiYear).animal}`).join(', ');
+  const faq = [
+    [`${m}월 ${d}일 별자리는 무엇인가요?`, `${z.kor}(${z.sym})입니다. ${z.kor}는 ${z.from[0]}월 ${z.from[1]}일부터 ${z.to[0]}월 ${z.to[1]}일 사이에 태어난 사람의 별자리로, ${z.el}의 별자리예요.${(m === z.from[0] && d === z.from[1]) || (m === z.to[0] && d === z.to[1]) ? ' 별자리가 바뀌는 경계일이라 해마다 태양의 위치에 따라 하루 정도 차이가 날 수 있어요.' : ''}`],
+    [`${m}월 ${d}일 탄생석은 무엇인가요?`, `${m}월의 탄생석 ${st.name}(${st.en})${yeyo(st.name)}. ${st.meaning}${eul(st.meaning)} 뜻합니다.`],
+    [`${m}월 ${d}일생은 무슨 띠인가요?`, `띠는 태어난 해로 정해져서 ${m}월 ${d}일생이라도 해마다 달라요. ${recent}입니다.${m <= 2 ? ' 1~2월생은 설날 전에 태어났으면 앞 해의 띠예요.' : ''} 표에서 태어난 해를 고르면 띠와 사주 일주가 나와요.`]
+  ];
   const body = `
 <div class="overline">생일첩 · 월일별</div>
-<h1>${m}월 ${d}일생 — ${z.sym} ${z.kor}, 탄생석 ${st.name}</h1>
+<h1>${m}월 ${d}일 별자리는 ${z.sym} ${z.kor} — 탄생석 ${st.name}</h1>
 <p class="lead">${m}월 ${d}일에 태어난 사람의 별자리는 <strong>${z.kor}</strong>(${z.from[0]}월 ${z.from[1]}일 ~ ${z.to[0]}월 ${z.to[1]}일), 탄생석은 <strong>${st.name}</strong>(${st.en}, ${st.meaning})입니다. 띠와 사주 일주는 태어난 해에 따라 달라지므로 아래 표에서 연도를 고르세요.</p>
 <section>
 <h2>${z.kor}의 성격</h2>
@@ -481,9 +490,13 @@ ${trs}
 </tbody></table></div>
 <p class="note">연도를 누르면 그 날 태어난 사람의 나이·기념일·사주 풀이 페이지로 이동합니다.${m === 2 && d === 29 ? ' 2월 29일은 윤년에만 있어 4년에 한 번 생일이 돌아옵니다. 평년에는 보통 2월 28일에 생일을 지냅니다.' : ''}</p>
 </section>
+<section>
+<h2>자주 묻는 질문</h2>
+${faq.map(([q, a]) => `<h3>${q}</h3>\n<p>${a}</p>`).join('\n')}
+</section>
 <p class="pn"><a href="${mdUrl(pv.m, pv.d)}">← ${pv.m}월 ${pv.d}일생</a><a href="${mdUrl(nx.m, nx.d)}">${nx.m}월 ${nx.d}일생 →</a></p>
 `;
-  write(url, shell({ url, title, desc, body, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: '월일별', url: '/md/' }, { name: `${m}월 ${d}일`, url }]) }));
+  write(url, shell({ url, title, desc, body, jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: '월일별', url: '/md/' }, { name: `${m}월 ${d}일`, url }]), faqLd(faq)] }));
 }
 
 /* ---------- 띠 페이지 ---------- */
@@ -533,8 +546,13 @@ function zodiacPage(z) {
     d++; if (d > dim(2000, m)) { d = 1; m = m === 12 ? 1 : m + 1; }
   }
   const others = ZODIAC.map((x) => `<a href="/zodiac/${x.slug}/"${x === z ? ' class="cur"' : ''}><b>${x.sym}</b><small>${x.kor}</small></a>`).join('');
-  const title = `${z.kor} (${z.from[0]}월 ${z.from[1]}일 ~ ${z.to[0]}월 ${z.to[1]}일) 성격·특징·탄생석`;
-  const desc = `${z.kor}(${z.en}, ${z.sym})는 ${z.from[0]}월 ${z.from[1]}일부터 ${z.to[0]}월 ${z.to[1]}일 사이에 태어난 사람. ${z.el}의 별자리. 성격과 특징, 날짜별 생일 페이지.`;
+  const title = `${z.kor} 생일은 ${z.from[0]}월 ${z.from[1]}일 ~ ${z.to[0]}월 ${z.to[1]}일 — 성격·특징·탄생석·날짜별 생일`;
+  const desc = `${z.kor}(${z.en}, ${z.sym}) 생일은 ${z.from[0]}월 ${z.from[1]}일부터 ${z.to[0]}월 ${z.to[1]}일까지예요. ${z.el}의 별자리인 ${z.kor}의 성격과 특징, 탄생석, 날짜별 생일 페이지까지.`;
+  const faq = [
+    [`${z.kor} 생일은 언제부터 언제까지인가요?`, `${z.from[0]}월 ${z.from[1]}일부터 ${z.to[0]}월 ${z.to[1]}일까지 태어난 사람이 ${z.kor}예요. 첫날과 마지막 날은 해마다 태양의 위치가 조금 달라 하루 정도 차이가 날 수 있어요.`],
+    [`${z.kor}의 탄생석은 무엇인가요?`, `탄생석은 별자리가 아니라 태어난 달로 정해요. ${z.from[0]}월생은 ${BIRTHSTONE[z.from[0]].name}, ${z.to[0]}월생은 ${BIRTHSTONE[z.to[0]].name}${yeyo(BIRTHSTONE[z.to[0]].name)}.`],
+    [`${z.kor}는 무슨 원소의 별자리인가요?`, `${z.el}의 별자리예요. ${z.trait.split(/(?<=[.다요])\s/)[0]}`]
+  ];
   const body = `
 <div class="overline"><a href="/zodiac/">생일첩 · 12별자리</a></div>
 <h1>${z.sym} ${z.kor} — ${z.from[0]}월 ${z.from[1]}일 ~ ${z.to[0]}월 ${z.to[1]}일</h1>
@@ -549,11 +567,15 @@ function zodiacPage(z) {
 <div class="grid g6">${dates.join('')}</div>
 </section>
 <section>
+<h2>자주 묻는 질문</h2>
+${faq.map(([q, a]) => `<h3>${q}</h3>\n<p>${a}</p>`).join('\n')}
+</section>
+<section>
 <h2>다른 별자리</h2>
 <div class="grid g6">${others}</div>
 </section>
 `;
-  write(url, shell({ url, title, desc, body, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: '12별자리', url: '/zodiac/' }, { name: z.kor, url }]) }));
+  write(url, shell({ url, title, desc, body, jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: '12별자리', url: '/zodiac/' }, { name: z.kor, url }]), faqLd(faq)] }));
 }
 
 /* ---------- 인덱스·홈·정적 페이지 ---------- */
