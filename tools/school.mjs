@@ -12,8 +12,8 @@ export function schoolTitle(y, today) {
   const s = schoolOf(y), g = gradeOn(s.base, today);
   const man = manRange(y, today);
   if (g.stage === 'pre' || g.stage === 'unborn') return `${y}년생 학년 계산 — ${today.y}년 미취학(만 ${man}세), 초등 입학 ${s.elem}년·고등 졸업 ${s.hsGrad}년 (만 나이·성인 나이)`;
-  if (g.k < 12) return `${y}년생 몇 학년? ${today.m >= 3 ? g.sy + '년' : g.sy + '학년도'} ${g.label} — 초등 입학 ${s.elem}년·고등 졸업 ${s.hsGrad}년 (${pad2(y % 100)}년생 만 나이·성인 나이)`;
-  return `${y}년생 나이는? ${today.y}년 만 ${man}세 — 초등 입학 ${s.elem}년·고등 졸업 ${s.hsGrad}년·${s.hakbun}학번 (${pad2(y % 100)}년생)`;
+  if (g.k < 12) return `${y}년생 몇 학년? ${today.m >= 3 ? g.sy + '년' : g.sy + '학년도'} ${g.label} — 입학 ${s.elem}년·졸업 ${s.hsGrad}년, 만 나이·성인 나이 (${pad2(y % 100)}년생)`;
+  return `${y}년생 나이는? ${today.y}년 만 ${man}세 — 입학 ${s.elem}년·졸업 ${s.hsGrad}년·${s.hakbun}학번 (${pad2(y % 100)}년생)`;
 }
 
 export function schoolDesc(y, today, ddiWord) {
