@@ -101,7 +101,7 @@ export function buildHubs(c) {
     const body = `
 <div class="overline">생일첩 · 달력</div>
 <h1>${y}년 달력 · 공휴일</h1>
-<p class="lead">${y}년은 <strong>${g.kor}(${g.han})년 ${colorDdi(y)}</strong>의 해입니다. 공휴일은 모두 <strong>${holDates.length}일</strong>이고 그중 평일에 드는 날이 <strong>${weekdayHol}일</strong>, 대체공휴일이 <strong>${subs.length}일</strong>입니다. 설날은 ${seol.m}월 ${seol.d}일(${WD[weekday(y, seol.m, seol.d)]}), 추석은 ${chu.m}월 ${chu.d}일(${WD[weekday(y, chu.m, chu.d)]})이에요.</p>
+<p class="lead">${y}년은 <strong>${g.kor}(${g.han})년 ${colorDdi(y)}</strong>의 해입니다. 공휴일은 모두 <strong>${holDates.length}일</strong>이고 그중 평일에 드는 날이 <strong>${weekdayHol}일</strong>, 대체공휴일이 <strong>${subs.length}일</strong>입니다. 설날은 ${seol.m}월 ${seol.d}일(${WD[weekday(y, seol.m, seol.d)]}), 추석은 ${chu.m}월 ${chu.d}일(${WD[weekday(y, chu.m, chu.d)]})입니다.</p>
 <div class="facts">
   <div class="fact hi"><small>공휴일</small><b>${holDates.length}일</b><i>평일 ${weekdayHol}일 · 대체 ${subs.length}일</i></div>
   <div class="fact"><small>설날 연휴</small><b>${seol.m}/${seol.d - 1}~${seol.m}/${seol.d + 1}</b><i>${seolRun ? seolRun.len + '일 쉼' : '3일'}</i></div>
@@ -121,7 +121,7 @@ ${holTable(hol)}
 <section>
 <h2>연휴와 징검다리</h2>
 <h3>3일 이상 연휴</h3>
-<ul>${long.map((b) => `<li><b>${b.from.m}월 ${b.from.d}일(${W1(b.from.w)}) ~ ${b.to.m}월 ${b.to.d}일(${W1(b.to.w)})</b> — ${b.len}일${b.names.length ? ' · ' + b.names.join(', ') : ' · 주말'}</li>`).join('') || '<li>없음</li>'}</ul>
+<ul>${long.map((b) => `<li><b>${b.from.m}월 ${b.from.d}일(${W1(b.from.w)}) ~ ${b.to.m}월 ${b.to.d}일(${W1(b.to.w)})</b>: ${b.len}일${b.names.length ? ' · ' + b.names.join(', ') : ' · 주말'}</li>`).join('') || '<li>없음</li>'}</ul>
 <h3>연차 하루로 길어지는 날</h3>
 <ul>${bridges.map((b) => `<li><b>${b.day.m}월 ${b.day.d}일(${W1(b.day.w)})</b>에 연차를 쓰면 ${b.from.m}월 ${b.from.d}일 ~ ${b.to.m}월 ${b.to.d}일 <b>${b.len}일</b> 연휴${b.names.length ? ' · ' + b.names.join(', ') : ''}</li>`).join('') || '<li>없음</li>'}</ul>
 </section>
@@ -135,10 +135,10 @@ ${Array.from({ length: 12 }, (_, i) => i + 1).map((m) => `<h3><a href="${calUrl(
 <section>
 <h2>설날·추석과 음력</h2>
 <ul>
-  <li><strong>설날</strong> (음력 1월 1일) — ${seol.m}월 ${seol.d}일 ${WD[weekday(y, seol.m, seol.d)]} · 연휴 ${runTxt(seolRun, seol)}</li>
-  <li><strong>부처님오신날</strong> (음력 4월 8일) — ${bud.m}월 ${bud.d}일 ${WD[weekday(y, bud.m, bud.d)]}</li>
-  <li><strong>추석</strong> (음력 8월 15일) — ${chu.m}월 ${chu.d}일 ${WD[weekday(y, chu.m, chu.d)]} · 연휴 ${runTxt(chuRun, chu)}</li>
-  <li><strong>윤달</strong> — ${leapM ? `음력 윤${leapM}월이 있는 해입니다.` : '없는 해입니다.'}</li>
+  <li><strong>설날</strong> (음력 1월 1일): ${seol.m}월 ${seol.d}일 ${WD[weekday(y, seol.m, seol.d)]} · 연휴 ${runTxt(seolRun, seol)}</li>
+  <li><strong>부처님오신날</strong> (음력 4월 8일): ${bud.m}월 ${bud.d}일 ${WD[weekday(y, bud.m, bud.d)]}</li>
+  <li><strong>추석</strong> (음력 8월 15일): ${chu.m}월 ${chu.d}일 ${WD[weekday(y, chu.m, chu.d)]} · 연휴 ${runTxt(chuRun, chu)}</li>
+  <li><strong>윤달</strong>: ${leapM ? `음력 윤${leapM}월이 있는 해입니다.` : '없는 해입니다.'}</li>
 </ul>
 <p class="note">띠는 설날(${seol.m}월 ${seol.d}일)에 ${ddiOfYear(y - 1).animal}에서 ${ddi.animal}로 바뀌고, 사주에서는 입춘(${(() => { const t = terms.find((x) => x.name === '입춘'); return `${t.m}월 ${t.d}일 ${pad(t.hh)}:${pad(t.mm)}`; })()})부터 ${g.kor}년으로 봅니다. <a href="${yearUrl(Math.min(y, Y1))}">${Math.min(y, Y1)}년생 나이·띠 보기</a></p>
 </section>
@@ -156,7 +156,7 @@ ${terms.map((t) => `<tr><td><b>${t.name}</b>${t.jeol ? ' <span class="note">절<
 <div class="tw"><table><thead><tr><th>월</th><th>손없는 날 (양력)</th></tr></thead><tbody>
 ${sonByMonth.map((ds, i) => `<tr><td>${i + 1}월</td><td>${ds.map((d) => `<a href="${calUrl(y, i + 1)}">${d}일</a>`).join(', ') || '-'}</td></tr>`).join('')}
 </tbody></table></div>
-<p class="note">음력 9·10·19·20·29·30일이 손없는 날입니다. 이사·개업·혼례처럼 큰일을 잡을 때 참고하는 날이에요.${inSaju ? ` <a href="${SAJU}/son/${y}-01/">사주첩 손없는날 달력</a>` : ''}</p>
+<p class="note">음력 9·10·19·20·29·30일이 손없는 날입니다. 이사·개업·혼례처럼 큰일을 잡을 때 참고하는 날입니다.${inSaju ? ` <a href="${SAJU}/son/${y}-01/">사주첩 손없는날 달력</a>` : ''}</p>
 </section>
 
 <section>
@@ -168,7 +168,7 @@ ${sonByMonth.map((ds, i) => `<tr><td>${i + 1}월</td><td>${ds.map((d) => `<a hre
 <section>
 <h2>자주 묻는 질문</h2>
 <h3>${y}년 공휴일은 며칠인가요?</h3>
-<p>공휴일은 ${holDates.length}일이고, 주말과 겹치지 않아 실제로 쉬는 평일은 ${weekdayHol}일입니다. 주말까지 합치면 ${y}년에 쉬는 날은 ${days.filter((x) => x.off).length}일이에요. 정부가 따로 지정하는 임시공휴일이 생기면 더 늘어납니다.</p>
+<p>공휴일은 ${holDates.length}일이고, 주말과 겹치지 않아 실제로 쉬는 평일은 ${weekdayHol}일입니다. 주말까지 합치면 ${y}년에 쉬는 날은 ${days.filter((x) => x.off).length}일입니다. 정부가 따로 지정하는 임시공휴일이 생기면 더 늘어납니다.</p>
 <h3>${y}년 대체공휴일은 언제인가요?</h3>
 <p>${subs.length ? subs.map((h) => `${h.m}월 ${h.d}일(${W1(weekday(h.y, h.m, h.d))}, ${h.base})`).join(', ') + '입니다.' : '토·일요일과 겹치는 대상 공휴일이 없어 대체공휴일이 없는 해입니다.'}</p>
 <h3>${y}년 설 연휴와 추석 연휴는 언제인가요?</h3>
@@ -198,7 +198,7 @@ ${yearsNav(y)}
     const body = `
 <div class="overline"><a href="${calUrl(y)}">${y}년 달력</a> · ${m}월</div>
 <h1>${y}년 ${m}월 달력</h1>
-<p class="lead">${y}년 ${m}월 1일은 ${WD[days[0].w]}로 시작해 ${dim(y, m)}일 ${WD[days[days.length - 1].w]}에 끝납니다. 음력으로는 ${l0 ? `${l0.y}년 ${l0.leap ? '윤' : ''}${l0.m}월 ${l0.d}일` : ''}부터 ${l1 ? `${l1.leap ? '윤' : ''}${l1.m}월 ${l1.d}일` : ''}까지예요. ${hol.length ? '이 달의 공휴일은 ' + uniq(hol.map((h) => `${h.d}일(${W1(weekday(y, m, h.d))}) ${shortName(h.name)}`)).join(', ') + '입니다.' : '이 달에는 공휴일이 없습니다.'}</p>
+<p class="lead">${y}년 ${m}월 1일은 ${WD[days[0].w]}로 시작해 ${dim(y, m)}일 ${WD[days[days.length - 1].w]}에 끝납니다. 음력으로는 ${l0 ? `${l0.y}년 ${l0.leap ? '윤' : ''}${l0.m}월 ${l0.d}일` : ''}부터 ${l1 ? `${l1.leap ? '윤' : ''}${l1.m}월 ${l1.d}일` : ''}까지입니다. ${hol.length ? '이 달의 공휴일은 ' + uniq(hol.map((h) => `${h.d}일(${W1(weekday(y, m, h.d))}) ${shortName(h.name)}`)).join(', ') + '입니다.' : '이 달에는 공휴일이 없습니다.'}</p>
 <section>
 ${calGrid(y, m)}
 <p class="note">날짜 아래는 일진(60갑자)과 음력 날짜 또는 공휴일·절기 이름. 붉은 칸은 공휴일, 테두리가 진한 날은 손없는 날입니다.</p>
@@ -209,7 +209,7 @@ ${hol.length ? holTable(hol) : '<p>공휴일이 없는 달입니다.</p>'}
 </section>
 <section>
 <h2>${m}월의 절기와 손없는 날</h2>
-<ul>${terms.map((t) => `<li><strong>${t.name}</strong> — ${m}월 ${t.d}일 ${WD[weekday(y, m, t.d)]} ${pad(t.hh)}:${pad(t.mm)}${t.jeol ? ' (절입 — 이 시각부터 사주의 월주가 바뀝니다)' : ''}</li>`).join('')}</ul>
+<ul>${terms.map((t) => `<li><strong>${t.name}</strong>: ${m}월 ${t.d}일 ${WD[weekday(y, m, t.d)]} ${pad(t.hh)}:${pad(t.mm)}${t.jeol ? ' (절입: 이 시각부터 사주의 월주가 바뀝니다)' : ''}</li>`).join('')}</ul>
 <p>손없는 날: ${sons.map((x) => `<b>${x.d}일</b>(${W1(x.w)}, 음력 ${x.lun.m}.${x.lun.d})`).join(', ') || '없음'}</p>
 ${inSaju ? `<p class="note"><a href="${SAJU}/son/${y}-${pad(m)}/">사주첩 ${m}월 손없는날·이사 길일</a> · <a href="${SAJU}/jeolgi/${y}/">${y}년 절기</a></p>` : ''}
 </section>
@@ -240,7 +240,7 @@ ${days.map((x) => { const href = cellLink(x); return `<tr class="${x.hol.length 
     const body = `
 <div class="overline">생일첩 · 계산기</div>
 <h1>만 나이 계산기</h1>
-<p class="lead">생년월일을 고르면 <strong>만 나이</strong>(2023년 6월 28일부터 법적 나이), <strong>연나이</strong>, <strong>세는나이</strong>를 한 번에 계산합니다. 기준일을 바꾸면 "그 날짜에 몇 살인지"도 알 수 있어요. 계산은 브라우저 안에서만 이뤄지고 아무것도 저장되지 않습니다.</p>
+<p class="lead">생년월일을 고르면 <strong>만 나이</strong>(2023년 6월 28일부터 법적 나이), <strong>연나이</strong>, <strong>세는나이</strong>를 한 번에 계산합니다. 기준일을 바꾸면 "그 날짜에 몇 살인지"도 알 수 있습니다. 계산은 브라우저 안에서만 이뤄지고 아무것도 저장되지 않습니다.</p>
 <form class="form" id="age-form">
   <div class="row"><select name="y" data-min="1900" data-max="${today.y}" aria-label="년"></select><select name="m" aria-label="월"></select><select name="d" aria-label="일"></select></div>
   <label class="frow-label">기준일 <input type="date" name="base" aria-label="기준일"></label>
@@ -254,7 +254,7 @@ ${days.map((x) => { const href = cellLink(x); return `<tr class="${x.hol.length 
 <tr><td><b>연나이</b></td><td>올해 − 출생연도</td><td>병역법(병역판정검사), 청소년보호법(술·담배 구매), 초·중등교육법(취학), 공무원 임용시험 응시 연령</td></tr>
 <tr><td><b>세는나이</b></td><td>태어난 해 1세, 새해마다 +1</td><td>일상의 관습 (한국식 나이). 공식 문서에는 쓰지 않음</td></tr>
 </tbody></table></div>
-<p>예를 들어 ${today.y - 30}년 ${today.m}월 ${today.d}일생은 ${fmt(today.y, today.m, today.d)} 기준으로 만 30세, 연나이 30세, 세는나이 31세입니다. 같은 사람이 생일 하루 전이라면 만 29세가 되고, 연나이와 세는나이는 그대로예요. 만 나이는 "생일이 지났는가"가 핵심이고, 연나이와 세는나이는 "해가 바뀌었는가"만 봅니다.</p>
+<p>예를 들어 ${today.y - 30}년 ${today.m}월 ${today.d}일생은 ${fmt(today.y, today.m, today.d)} 기준으로 만 30세, 연나이 30세, 세는나이 31세입니다. 같은 사람이 생일 하루 전이라면 만 29세가 되고, 연나이와 세는나이는 그대로입니다. 만 나이는 "생일이 지났는가"가 핵심이고, 연나이와 세는나이는 "해가 바뀌었는가"만 봅니다.</p>
 <p class="callout">2023년 6월 28일 「행정기본법」·「민법」 개정으로 별도 규정이 없으면 모든 나이는 만 나이입니다. 다만 위 표의 연나이를 쓰는 법령은 그대로 유지되므로, 술·담배 구매 가능 연령(그 해에 19세가 되는 사람)이나 병역 검사 시기는 연나이로 봅니다.</p>
 </section>
 <section>
@@ -267,13 +267,13 @@ ${rows.join('\n')}
 <section>
 <h2>자주 묻는 질문</h2>
 <h3>만 나이는 어떻게 계산하나요?</h3>
-<p>올해에서 출생연도를 뺀 뒤, 올해 생일이 아직 안 지났으면 1을 더 뺍니다. 태어난 날은 0세이고 첫 생일에 1세가 됩니다. 돌이 곧 만 1세예요.</p>
+<p>올해에서 출생연도를 뺀 뒤, 올해 생일이 아직 안 지났으면 1을 더 뺍니다. 태어난 날은 0세이고 첫 생일에 1세가 됩니다. 돌이 곧 만 1세입니다.</p>
 <h3>2월 29일생은 생일이 언제인가요?</h3>
 <p>평년에는 2월 28일이 지나면(즉 3월 1일부터) 한 살을 더 먹는 것으로 봅니다. 이 계산기도 같은 방식입니다.</p>
 <h3>기준일을 과거나 미래로 바꿔도 되나요?</h3>
 <p>됩니다. 입학·입사 당시 나이나, 특정 날짜에 만 19세가 되는지 같은 걸 확인할 때 기준일을 바꿔 보세요.</p>
 </section>
-<p class="note"><a href="/school/">학년 계산기 — 출생연도별 입학·졸업 연도</a> · <a href="/dday/">디데이·100일 계산기</a> · <a href="${calUrl(today.y)}">${today.y}년 달력·공휴일</a> · <a href="/">생년월일로 내 페이지 열기</a></p>
+<p class="note"><a href="/school/">학년 계산기(출생연도별 입학·졸업 연도)</a> · <a href="/dday/">디데이·100일 계산기</a> · <a href="${calUrl(today.y)}">${today.y}년 달력·공휴일</a> · <a href="/">생년월일로 내 페이지 열기</a></p>
 `;
     write(url, shell({ url, title, desc, body, extraBody: `<script>window.LNY=${JSON.stringify(lny)};</script><script src="/js/tools.js" defer></script>`, jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: '만 나이 계산기', url }]), { '@context': 'https://schema.org', '@type': 'WebApplication', name: '만 나이 계산기', url: c.SITE + url, applicationCategory: 'UtilityApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0' } }] }));
   }
@@ -312,19 +312,19 @@ ${rows.join('\n')}
 </section>
 <section>
 <h2>100일은 어떻게 세나요</h2>
-<p>두 가지 방식이 있습니다. <strong>시작한 날을 1일로 세면</strong> 100일은 시작일에서 99일 뒤이고, 커플 기념일과 아기 백일이 보통 이 방식입니다. <strong>시작한 날을 0일로 세면</strong>(만 100일) 시작일에서 100일 뒤가 됩니다. 위 체크박스로 바꿀 수 있어요.</p>
+<p>두 가지 방식이 있습니다. <strong>시작한 날을 1일로 세면</strong> 100일은 시작일에서 99일 뒤이고, 커플 기념일과 아기 백일이 보통 이 방식입니다. <strong>시작한 날을 0일로 세면</strong>(만 100일) 시작일에서 100일 뒤가 됩니다. 위 체크박스로 바꿀 수 있습니다.</p>
 <p>아기 백일은 태어난 날을 1일로 세어 99일 뒤, 돌은 첫 번째 생일입니다. 아기의 생년월일로 <a href="/">생일첩 페이지</a>를 열면 100일·돌·1,000일 날짜가 자동으로 나옵니다.</p>
 <h3>자주 찾는 기념일</h3>
 <ul>
-  <li><strong>커플</strong> — 100일, 200일, 300일, 1주년, 500일, 1000일, 2000일</li>
-  <li><strong>아기</strong> — 백일(100일), 돌(1주년), 1000일</li>
-  <li><strong>시험·전역·개업</strong> — 목표일까지 D-day, 시작일부터 D+N</li>
+  <li><strong>커플</strong>: 100일, 200일, 300일, 1주년, 500일, 1000일, 2000일</li>
+  <li><strong>아기</strong>: 백일(100일), 돌(1주년), 1000일</li>
+  <li><strong>시험·전역·개업</strong>: 목표일까지 D-day, 시작일부터 D+N</li>
 </ul>
 <h3>자주 묻는 질문</h3>
 <h3>D-day와 D+N은 무엇이 다른가요?</h3>
 <p>D-day는 목표일까지 남은 날(D-30이면 30일 남음), D+N은 시작일부터 지난 날(D+100이면 100일째)입니다. 목표일 당일이 D-day(D-0)입니다.</p>
 <h3>1주년은 365일인가요?</h3>
-<p>1주년은 다음 해 같은 날짜로, 윤년이 끼면 366일입니다. 이 계산기의 365일 행은 "365일째"이고 1주년과 하루 차이가 날 수 있어요.</p>
+<p>1주년은 다음 해 같은 날짜로, 윤년이 끼면 366일입니다. 이 계산기의 365일 행은 "365일째"이고 1주년과 하루 차이가 날 수 있습니다.</p>
 </section>
 <p class="note"><a href="/age/">만 나이 계산기</a> · <a href="${calUrl(today.y)}">${today.y}년 달력·공휴일</a></p>
 `;

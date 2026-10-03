@@ -45,7 +45,7 @@
       var dday = daysBetween(b, nb);
       var months = (b.y - by) * 12 + (b.m - bm) - (b.d < bd ? 1 : 0);
       var link = (by >= 1940 && utc(by, bm, bd) <= utc(T.y, T.m, T.d))
-        ? '<p class="note"><a href="/' + by + '/' + pad(bm) + '/' + pad(bd) + '/">' + by + '년 ' + bm + '월 ' + bd + '일생 페이지 — 기념일·학번·띠·일주 보기 →</a></p>' : '';
+        ? '<p class="note"><a href="/' + by + '/' + pad(bm) + '/' + pad(bd) + '/">' + by + '년 ' + bm + '월 ' + bd + '일생 페이지에서 기념일·학번·띠·일주 보기 →</a></p>' : '';
       show(out,
         '<p class="lead"><b>' + by + '년 ' + bm + '월 ' + bd + '일생</b>(' + WD[birth.w] + '요일)은 ' + fmt(b) + ' 기준 <b>만 ' + man + '세</b>입니다.</p>' +
         '<div class="facts">' +

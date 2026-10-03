@@ -70,7 +70,7 @@ export function legalAges(y) {
     { key: 'pension-join', name: '국민연금 가입', age: 18, basis: '만', law: '국민연금법', note: '만 18세 이상 60세 미만' },
     { key: 'youth', name: '술·담배 구매, 청소년 출입 제한 해제', age: 19, basis: '연', law: '청소년보호법', note: '만 19세가 되는 해 1월 1일부터' },
     { key: 'draft', name: '병역판정검사 (남성)', age: 19, basis: '연', law: '병역법', note: '19세가 되는 해에 검사' },
-    { key: 'adult', name: '성년 — 부모 동의 없이 계약·혼인, 청소년 관람불가 영화', age: 19, basis: '만', law: '민법 제4조', note: '' },
+    { key: 'adult', name: '성년 (부모 동의 없이 계약·혼인, 청소년 관람불가 영화)', age: 19, basis: '만', law: '민법 제4조', note: '' },
     { key: 'retire', name: '법정 정년 (하한)', age: 60, basis: '만', law: '고용상 연령차별금지법', note: '정년은 60세 이상으로 정해야 함' },
     { key: 'senior', name: '경로우대·지하철 무임승차·기초연금', age: 65, basis: '만', law: '노인복지법·기초연금법', note: '기초연금은 소득 하위 70%' },
     { key: 'pension', name: '국민연금 노령연금 수급 개시', age: p, basis: '만', law: '국민연금법', note: `${y}년생은 만 ${p}세부터` }

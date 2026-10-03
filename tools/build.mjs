@@ -224,9 +224,9 @@ function dayPage(x) {
   const lunTxt = x.lun ? `${x.lun.y}년 ${x.lun.leap ? '윤' : ''}${x.lun.m}월 ${x.lun.d}일` : '-';
   const ilju = x.ilju;
   const ddiNote = x.ddi !== x.sajuDdi
-    ? `<p class="note">설날(음력 1월 1일) 기준으로는 <b>${x.ddi.animal}</b>이지만, 사주(명리)에서는 입춘을 새해의 시작으로 보기 때문에 <b>${x.sajuDdi.animal}</b>(${x.yearG.kor}년)로 계산합니다. 1~2월생에게 자주 생기는 차이예요.</p>`
+    ? `<p class="note">설날(음력 1월 1일) 기준으로는 <b>${x.ddi.animal}</b>이지만, 사주(명리)에서는 입춘을 새해의 시작으로 보기 때문에 <b>${x.sajuDdi.animal}</b>(${x.yearG.kor}년)로 계산합니다. 1~2월생에게 자주 생기는 차이입니다.</p>`
     : '';
-  const jeolNote = x.terms.filter((t) => t.jeol).map((t) => `<p class="note">이 날은 <b>${t.name}</b>(${pad(t.hh)}:${pad(t.mm)} KST) 절입일입니다. 사주에서는 이 시각을 기준으로 ${t.name === '입춘' ? '년주와 월주가' : '월주가'} 바뀌므로, 출생 시각에 따라 ${t.name === '입춘' ? '띠와 월주' : '월주'}가 달라질 수 있어요.`).join('');
+  const jeolNote = x.terms.filter((t) => t.jeol).map((t) => `<p class="note">이 날은 <b>${t.name}</b>(${pad(t.hh)}:${pad(t.mm)} KST) 절입일입니다. 사주에서는 이 시각을 기준으로 ${t.name === '입춘' ? '년주와 월주가' : '월주가'} 바뀌므로, 출생 시각에 따라 ${t.name === '입춘' ? '띠와 월주' : '월주'}가 달라질 수 있습니다.`).join('');
   const chungi = x.terms.filter((t) => !t.jeol).map((t) => t.name);
   const mile = [
     ['100일', addDays(y, m, d, 99)], ['첫돌 (만 1세)', addYears(y, m, d, 1)], ['1,000일', addDays(y, m, d, 999)],
@@ -288,12 +288,12 @@ ${mileRows}
 <section>
 <h2>학교와 학번</h2>
 <ul>
-  <li><strong>초등학교 입학</strong> — ${sc.elem}년 3월${sc.early ? ' (1~2월생 빠른 입학 기준)' : ''}</li>
-  <li><strong>고등학교 졸업</strong> — ${sc.hsGrad}년 2월</li>
-  <li><strong>대학 입학 (재수 없이)</strong> — ${sc.univ}년, <strong>${sc.hakbun}학번</strong></li>
-  <li><strong>성년</strong> — ${addYears(y, m, d, 19).y}년 ${m}월 ${d}일 (만 19세)</li>
+  <li><strong>초등학교 입학</strong>: ${sc.elem}년 3월${sc.early ? ' (1~2월생 빠른 입학 기준)' : ''}</li>
+  <li><strong>고등학교 졸업</strong>: ${sc.hsGrad}년 2월</li>
+  <li><strong>대학 입학 (재수 없이)</strong>: ${sc.univ}년, <strong>${sc.hakbun}학번</strong></li>
+  <li><strong>성년</strong>: ${addYears(y, m, d, 19).y}년 ${m}월 ${d}일 (만 19세)</li>
 </ul>
-<p class="note">${sc.early ? `${y}년 1~2월생은 이른바 '빠른 ${pad(y % 100)}'으로, 제도상 ${y - 1}년생과 같은 학년으로 입학했습니다. 실제 입학 연도는 취학 유예·조기 입학 여부에 따라 다를 수 있어요.` : (y >= 2003 && m <= 2 ? '2003년생부터는 1~2월생도 같은 해 출생자와 함께 입학합니다(빠른 생일 제도 폐지).' : '취학 유예·조기 입학·재수 여부에 따라 실제와 다를 수 있습니다.')}${y >= SCHOOL_Y0 ? ` <a href="${schoolUrl(y)}">${y}년생 지금 몇 학년? 입학·졸업 연도표</a>` : ''}</p>
+<p class="note">${sc.early ? `${y}년 1~2월생은 이른바 '빠른 ${pad(y % 100)}'에 해당해 제도상 ${y - 1}년생과 같은 학년으로 입학했습니다. 실제 입학 연도는 취학 유예·조기 입학 여부에 따라 다를 수 있습니다.` : (y >= 2003 && m <= 2 ? '2003년생부터는 1~2월생도 같은 해 출생자와 함께 입학합니다(빠른 생일 제도 폐지).' : '취학 유예·조기 입학·재수 여부에 따라 실제와 다를 수 있습니다.')}${y >= SCHOOL_Y0 ? ` <a href="${schoolUrl(y)}">${y}년생 지금 몇 학년? 입학·졸업 연도표</a>` : ''}</p>
 </section>
 
 <section>
@@ -304,7 +304,7 @@ ${ddiNote}
 <p class="note">${x.ddiYear}년의 설날은 ${(() => { const l = lunarNewYear(x.ddiYear); return fmt(l.y, l.m, l.d); })()}입니다. <a href="/ddi/${x.ddi.slug}/">${x.ddi.animal} 해와 나이 전체 보기</a></p>
 <h3>${x.zodiac.sym} ${x.zodiac.kor} (${x.zodiac.from[0]}월 ${x.zodiac.from[1]}일 ~ ${x.zodiac.to[0]}월 ${x.zodiac.to[1]}일)</h3>
 <p>${x.zodiac.trait}</p>
-<p class="note">${m}월의 탄생석은 <strong>${x.stone.name}</strong>(${x.stone.en}) — ${x.stone.meaning}. <a href="/zodiac/${x.zodiac.slug}/">${x.zodiac.kor} 더 보기</a> · <a href="${mdUrl(m, d)}">${m}월 ${d}일생 연도별 보기</a></p>
+<p class="note">${m}월의 탄생석은 <strong>${x.stone.name}</strong>(${x.stone.en}), 뜻은 ${x.stone.meaning}입니다. <a href="/zodiac/${x.zodiac.slug}/">${x.zodiac.kor} 더 보기</a> · <a href="${mdUrl(m, d)}">${m}월 ${d}일생 연도별 보기</a></p>
 </section>
 
 <section>
@@ -320,7 +320,7 @@ ${jeolNote}
 <p>${SPOUSE_LINE[M.branchSipseong(x.dayP.stem, x.dayP.branch)]}</p>
 <p class="callout">일주는 태어난 날의 간지로 정해져 시각과 상관없이 같지만, 시주(태어난 시간)와 대운·오행 균형까지 보려면 정확한 출생 시각이 필요합니다. <a href="${SAJU}/ilju/${ilju.slug}/">${ilju.kor}일주 풀이 전문</a> · <a href="${SAJU}/2027/ilju/${ilju.slug}/"><b>${ilju.kor}일주 2027년 운세</b></a> · <a href="${SAJU}/">사주첩에서 내 사주 보기</a></p>
 ${chungi.length ? `<p class="note">이 날은 절기 <b>${chungi.join(', ')}</b>입니다.</p>` : ''}
-${x.lun && x.lun.son ? '<p class="note">음력 ' + x.lun.d + '일은 손없는 날 — 이사·개업 같은 큰일을 하기 좋다고 여기는 날에 태어났습니다.</p>' : ''}
+${x.lun && x.lun.son ? '<p class="note">음력 ' + x.lun.d + '일, 이사·개업 같은 큰일을 하기 좋다고 여기는 손없는 날에 태어났습니다.</p>' : ''}
 </section>
 
 <section>
@@ -334,7 +334,7 @@ ${sameDay.join('\n')}
 <section>
 <h2>자주 묻는 질문</h2>
 <h3>${y}년 ${m}월 ${d}일생은 올해 몇 살인가요?</h3>
-<p><span data-live="year">${today.y}</span>년 기준 만 <span data-live="man">${a.man}</span>세입니다. 연나이로는 <span data-live="yeon">${a.yeon}</span>세, 세는나이로는 <span data-live="se">${a.se}</span>세예요. 2023년 6월 28일부터 법적·행정적 나이는 만 나이로 통일되었습니다.</p>
+<p><span data-live="year">${today.y}</span>년 기준 만 <span data-live="man">${a.man}</span>세입니다. 연나이로는 <span data-live="yeon">${a.yeon}</span>세, 세는나이로는 <span data-live="se">${a.se}</span>세입니다. 2023년 6월 28일부터 법적·행정적 나이는 만 나이로 통일되었습니다.</p>
 <h3>${y}년 ${m}월 ${d}일은 무슨 요일이었나요?</h3>
 <p>${wd}입니다. 다음 생일인 <span data-live="nextb">${NEXT_BDAY(a.nb)}</span>까지 <span data-live="ddays">${a.dday === 0 ? "오늘" : a.dday + "일"}</span> 남았습니다.</p>
 <h3>${y}년 ${m}월 ${d}일생의 음력 생일과 띠는?</h3>
@@ -373,7 +373,7 @@ function monthPage(y, m, days) {
   const body = `
 <div class="overline"><a href="${yearUrl(y)}">${y}년생</a> · ${m}월</div>
 <h1>${y}년 ${m}월 출생 달력</h1>
-<p class="lead">${y}년 ${m}월 1일은 ${WD[first]}로 시작합니다. 음력으로는 ${lunFirst ? `${lunFirst.y}년 ${lunFirst.leap ? '윤' : ''}${lunFirst.m}월 ${lunFirst.d}일` : '-'}부터 ${lunLast ? `${lunLast.leap ? '윤' : ''}${lunLast.m}월 ${lunLast.d}일` : '-'}까지예요. 날짜를 누르면 그 날 태어난 사람의 나이·띠·별자리·일주 풀이를 볼 수 있습니다.</p>
+<p class="lead">${y}년 ${m}월 1일은 ${WD[first]}로 시작합니다. 음력으로는 ${lunFirst ? `${lunFirst.y}년 ${lunFirst.leap ? '윤' : ''}${lunFirst.m}월 ${lunFirst.d}일` : '-'}부터 ${lunLast ? `${lunLast.leap ? '윤' : ''}${lunLast.m}월 ${lunLast.d}일` : '-'}까지입니다. 날짜를 누르면 그 날 태어난 사람의 나이·띠·별자리·일주 풀이를 볼 수 있습니다.</p>
 <div class="chips"><span><b>${colorDdi(y)}</b></span><span>${zs.map((z) => z.sym + ' ' + z.kor).join(' / ')}</span><span>탄생석 <b>${BIRTHSTONE[m].name}</b></span></div>
 <section>
 <div class="cal">
@@ -384,7 +384,7 @@ ${cells.join('\n')}
 </section>
 <section>
 <h2>${y}년 ${m}월의 절기</h2>
-<ul>${terms.map((t) => `<li><strong>${t.name}</strong> — ${dn(y, m, t.d) <= dn(today.y, today.m, today.d) ? `<a href="${dayUrl(y, m, t.d)}">${m}월 ${t.d}일</a>` : `${m}월 ${t.d}일`} ${pad(t.hh)}:${pad(t.mm)}${t.jeol ? ' (절입 — 이 시각부터 사주의 월주가 바뀝니다)' : ''}</li>`).join('')}</ul>
+<ul>${terms.map((t) => `<li><strong>${t.name}</strong>: ${dn(y, m, t.d) <= dn(today.y, today.m, today.d) ? `<a href="${dayUrl(y, m, t.d)}">${m}월 ${t.d}일</a>` : `${m}월 ${t.d}일`} ${pad(t.hh)}:${pad(t.mm)}${t.jeol ? ' (절입: 이 시각부터 사주의 월주가 바뀝니다)' : ''}</li>`).join('')}</ul>
 ${sons ? `<p class="note">손없는 날: ${sons}</p>` : ''}
 </section>
 <section>
@@ -416,7 +416,7 @@ function yearPage(y) {
   const body = `
 <div class="overline">생일첩 · 연도별</div>
 <h1>${y}년생 — ${g.kor}년 ${colorDdi(y)}</h1>
-<p class="lead">${y}년에 태어난 사람은 <strong>${g.kor}(${g.han})년 ${colorDdi(y)}</strong>입니다. <span data-live="year">${today.y}</span>년 기준 <strong>만 ${yeon - 1}세 또는 ${yeon}세</strong>(생일이 지났으면 ${yeon}세), 연나이 <strong>${yeon}세</strong>, 세는나이 <strong>${yeon + 1}세</strong>예요. 재수 없이 대학에 갔다면 <strong>${sc.hakbun}학번</strong>입니다.</p>
+<p class="lead">${y}년에 태어난 사람은 <strong>${g.kor}(${g.han})년 ${colorDdi(y)}</strong>입니다. <span data-live="year">${today.y}</span>년 기준 <strong>만 ${yeon - 1}세 또는 ${yeon}세</strong>(생일이 지났으면 ${yeon}세), 연나이 <strong>${yeon}세</strong>, 세는나이 <strong>${yeon + 1}세</strong>입니다. 재수 없이 대학에 갔다면 <strong>${sc.hakbun}학번</strong>입니다.</p>
 <div class="facts">
   <div class="fact hi"><small>만 나이 (${today.y}년)</small><b>${yeon - 1}~${yeon}세</b><i>생일 전 ${yeon - 1} · 생일 후 ${yeon}</i></div>
   <div class="fact"><small>연나이 / 세는나이</small><b>${yeon} / ${yeon + 1}세</b><i>${today.y} − ${y}</i></div>
@@ -433,13 +433,13 @@ function yearPage(y) {
 <section>
 <h2>${y}년생의 나이와 기념일</h2>
 <ul>
-  <li><strong>초등학교 입학</strong> — ${sc.elem}년 3월${scE.early ? ` (1~2월생은 ${scE.elem}년, 빠른 ${pad(y % 100)})` : ''}</li>
-  <li><strong>고등학교 졸업</strong> — ${sc.hsGrad}년 2월</li>
-${y >= SCHOOL_Y0 ? `  <li><strong>지금 몇 학년?</strong> — <a href="${schoolUrl(y)}">${y}년생 학년·입학·졸업 연도표와 성인이 되는 해</a></li>
-` : ''}  <li><strong>성년(만 19세)</strong> — ${y + 19}년 생일</li>
-  <li><strong>서른(만 30세)</strong> — ${y + 30}년 · <strong>마흔</strong> — ${y + 40}년 · <strong>쉰</strong> — ${y + 50}년</li>
-  <li><strong>환갑(만 60세)</strong> — ${y + 60}년 생일 · <strong>칠순</strong> — ${y + 69}년 · <strong>팔순</strong> — ${y + 79}년</li>
-  <li><strong>국민연금 수급 개시</strong> — 만 ${pensionAge(y)}세, ${y + pensionAge(y)}년 생일부터</li>
+  <li><strong>초등학교 입학</strong>: ${sc.elem}년 3월${scE.early ? ` (1~2월생은 ${scE.elem}년, 빠른 ${pad(y % 100)})` : ''}</li>
+  <li><strong>고등학교 졸업</strong>: ${sc.hsGrad}년 2월</li>
+${y >= SCHOOL_Y0 ? `  <li><strong>지금 몇 학년?</strong>: <a href="${schoolUrl(y)}">${y}년생 학년·입학·졸업 연도표와 성인이 되는 해</a></li>
+` : ''}  <li><strong>성년(만 19세)</strong>: ${y + 19}년 생일</li>
+  <li><strong>서른(만 30세)</strong>: ${y + 30}년 · <strong>마흔</strong>: ${y + 40}년 · <strong>쉰</strong>: ${y + 50}년</li>
+  <li><strong>환갑(만 60세)</strong>: ${y + 60}년 생일 · <strong>칠순</strong>: ${y + 69}년 · <strong>팔순</strong>: ${y + 79}년</li>
+  <li><strong>국민연금 수급 개시</strong>: 만 ${pensionAge(y)}세, ${y + pensionAge(y)}년 생일부터</li>
 </ul>
 </section>
 <section>
@@ -470,12 +470,12 @@ function mdPage(m, d, rows) {
   const pv = m === 1 && d === 1 ? { m: 12, d: 31 } : d === 1 ? { m: m - 1, d: dim(2000, m - 1) } : { m, d: d - 1 };
   const nx = m === 12 && d === 31 ? { m: 1, d: 1 } : d === dim(2000, m) ? { m: m + 1, d: 1 } : { m, d: d + 1 };
   const title = `${m}월 ${d}일 별자리는? ${z.kor} · 탄생석 ${st.name} — ${m}월 ${d}일생 띠·나이표`;
-  const desc = `${m}월 ${d}일에 태어난 사람의 별자리는 ${z.kor}(${z.sym}, ${z.from[0]}월 ${z.from[1]}일~${z.to[0]}월 ${z.to[1]}일), 탄생석은 ${st.name}이에요. ${Y0}~${Y1}년 ${m}월 ${d}일의 요일·띠·사주 일주·음력을 한 표로, 연도를 누르면 나이와 기념일까지.`;
+  const desc = `${m}월 ${d}일에 태어난 사람의 별자리는 ${z.kor}(${z.sym}, ${z.from[0]}월 ${z.from[1]}일~${z.to[0]}월 ${z.to[1]}일), 탄생석은 ${st.name}${yeyo(st.name)}. ${Y0}~${Y1}년 ${m}월 ${d}일의 요일·띠·사주 일주·음력을 한 표로, 연도를 누르면 나이와 기념일까지.`;
   const recent = rows.slice(-4).reverse().map((x) => `${x.y}년생은 ${ddiOfYear(x.ddiYear).animal}`).join(', ');
   const faq = [
-    [`${m}월 ${d}일 별자리는 무엇인가요?`, `${z.kor}(${z.sym})입니다. ${z.kor}는 ${z.from[0]}월 ${z.from[1]}일부터 ${z.to[0]}월 ${z.to[1]}일 사이에 태어난 사람의 별자리로, ${z.el}의 별자리예요.${(m === z.from[0] && d === z.from[1]) || (m === z.to[0] && d === z.to[1]) ? ' 별자리가 바뀌는 경계일이라 해마다 태양의 위치에 따라 하루 정도 차이가 날 수 있어요.' : ''}`],
-    [`${m}월 ${d}일 탄생석은 무엇인가요?`, `${m}월의 탄생석 ${st.name}(${st.en})${yeyo(st.name)}. ${st.meaning}${eul(st.meaning)} 뜻합니다.`],
-    [`${m}월 ${d}일생은 무슨 띠인가요?`, `띠는 태어난 해로 정해져서 ${m}월 ${d}일생이라도 해마다 달라요. ${recent}입니다.${m <= 2 ? ' 1~2월생은 설날 전에 태어났으면 앞 해의 띠예요.' : ''} 표에서 태어난 해를 고르면 띠와 사주 일주가 나와요.`]
+    [`${m}월 ${d}일 별자리는 무엇인가요?`, `${z.kor}(${z.sym})예요. ${z.kor}는 ${z.from[0]}월 ${z.from[1]}일부터 ${z.to[0]}월 ${z.to[1]}일 사이에 태어난 사람의 별자리로, ${z.el}의 별자리예요.${(m === z.from[0] && d === z.from[1]) || (m === z.to[0] && d === z.to[1]) ? ' 별자리가 바뀌는 경계일이라 해마다 태양의 위치에 따라 하루 정도 차이가 날 수 있어요.' : ''}`],
+    [`${m}월 ${d}일 탄생석은 무엇인가요?`, `${m}월의 탄생석 ${st.name}(${st.en})${yeyo(st.name)}. ${st.meaning}${eul(st.meaning)} 뜻해요.`],
+    [`${m}월 ${d}일생은 무슨 띠인가요?`, `띠는 태어난 해로 정해져서 ${m}월 ${d}일생이라도 해마다 달라요. ${recent}예요.${m <= 2 ? ' 1~2월생은 설날 전에 태어났으면 앞 해의 띠예요.' : ''} 표에서 태어난 해를 고르면 띠와 사주 일주가 나와요.`]
   ];
   const body = `
 <div class="overline">생일첩 · 월일별</div>
@@ -527,7 +527,7 @@ ${rows}
 <p>${ddi.trait}</p>
 <h3>연애</h3><p>${ddi.love}</p>
 <h3>일</h3><p>${ddi.work}</p>
-<p class="callout">띠는 태어난 해의 지지(地支) 하나만 보는 것이라, 같은 띠라도 태어난 날의 일주에 따라 성격이 크게 다릅니다. 정확한 생년월일로 <a href="/">내 생일 페이지</a>를 열어 일주까지 확인해 보세요. 2027 정미년의 ${ddi.animal} 흐름은 <a href="${SAJU}/2027/ddi/${ddi.slug}/"><b>사주첩 2027년 ${ddi.animal} 운세</b></a>에서 총운·월별·출생연도별로 이어집니다.</p>
+<p class="callout">띠는 태어난 해의 지지(地支) 하나만 보는 것이라, 같은 띠라도 태어난 날의 일주에 따라 성격이 크게 다릅니다. 정확한 생년월일로 <a href="/">내 생일 페이지</a>를 열어 일주까지 확인해 보세요. 2027 정미년의 ${ddi.animal} 흐름은 <a href="${SAJU}/2027/ddi/${ddi.slug}/"><b>사주첩 2027년 ${ddi.animal} 운세</b></a>에서 총운·월별·출생연도별로 볼 수 있습니다.</p>
 </section>
 <section>
 <h2>다른 띠</h2>
@@ -553,7 +553,7 @@ function zodiacPage(z) {
   const faq = [
     [`${z.kor} 생일은 언제부터 언제까지인가요?`, `${z.from[0]}월 ${z.from[1]}일부터 ${z.to[0]}월 ${z.to[1]}일까지 태어난 사람이 ${z.kor}예요. 첫날과 마지막 날은 해마다 태양의 위치가 조금 달라 하루 정도 차이가 날 수 있어요.`],
     [`${z.kor}의 탄생석은 무엇인가요?`, `탄생석은 별자리가 아니라 태어난 달로 정해요. ${z.from[0]}월생은 ${BIRTHSTONE[z.from[0]].name}, ${z.to[0]}월생은 ${BIRTHSTONE[z.to[0]].name}${yeyo(BIRTHSTONE[z.to[0]].name)}.`],
-    [`${z.kor}는 무슨 원소의 별자리인가요?`, `${z.el}의 별자리예요. ${z.trait.split(/(?<=[.다요])\s/)[0]}`]
+    [`${z.kor}는 무슨 원소의 별자리인가요?`, `${z.el}의 별자리입니다. ${z.trait.split(/(?<=[.다요])\s/)[0]}`]
   ];
   const body = `
 <div class="overline"><a href="/zodiac/">생일첩 · 12별자리</a></div>
@@ -562,7 +562,7 @@ function zodiacPage(z) {
 <section>
 <h2>${z.kor}의 성격</h2>
 <p>${z.trait}</p>
-<p class="callout">별자리는 태어난 달의 태양 위치로 보는 서양 점성술이고, 띠와 일주는 동양 명리의 관점입니다. 두 가지를 함께 보면 자신을 더 입체적으로 이해할 수 있어요. <a href="/">생년월일로 내 페이지 열기</a></p>
+<p class="callout">별자리는 태어난 달의 태양 위치로 보는 서양 점성술이고, 띠와 일주는 동양 명리의 관점입니다. 두 가지를 함께 보면 자신을 더 입체적으로 이해할 수 있습니다. <a href="/">생년월일로 내 페이지 열기</a></p>
 </section>
 <section>
 <h2>${z.kor} 생일 날짜</h2>
@@ -585,9 +585,9 @@ function indexPages() {
   const ddiList = DDI.map((x) => `<a href="/ddi/${x.slug}/"><b>${x.animal}</b><small>${x.han}</small></a>`).join('');
   const zList = ZODIAC.map((z) => `<a href="/zodiac/${z.slug}/"><b>${z.sym} ${z.kor}</b><small>${z.from[0]}/${z.from[1]}~${z.to[0]}/${z.to[1]}</small></a>`).join('');
   write('/ddi/', shell({ url: '/ddi/', title: '12띠 — 태어난 해, 나이, 성격', desc: '쥐띠부터 돼지띠까지 12띠의 태어난 해와 올해 나이, 색띠 이름, 성격·연애·직업.', body: `<div class="overline">생일첩</div><h1>12띠</h1><p class="lead">띠를 고르면 그 띠에 해당하는 연도와 올해 나이, 설날·입춘 날짜, 성격을 볼 수 있습니다.</p><section><div class="grid g3">${ddiList}</div></section>`, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: '12띠', url: '/ddi/' }]) }));
-  write('/zodiac/', shell({ url: '/zodiac/', title: '12별자리 날짜와 성격', desc: '물병자리부터 염소자리까지 12별자리의 날짜 범위와 성격, 탄생석.', body: `<div class="overline">생일첩</div><h1>12별자리</h1><p class="lead">태어난 날짜로 별자리를 찾고, 별자리별 성격과 날짜별 생일 페이지로 이어집니다.</p><section><div class="grid g3">${zList}</div></section>`, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: '12별자리', url: '/zodiac/' }]) }));
+  write('/zodiac/', shell({ url: '/zodiac/', title: '12별자리 날짜와 성격', desc: '물병자리부터 염소자리까지 12별자리의 날짜 범위와 성격, 탄생석.', body: `<div class="overline">생일첩</div><h1>12별자리</h1><p class="lead">태어난 날짜로 별자리를 찾고, 별자리별 성격과 날짜별 생일 페이지까지 볼 수 있습니다.</p><section><div class="grid g3">${zList}</div></section>`, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: '12별자리', url: '/zodiac/' }]) }));
   const mdList = Array.from({ length: 12 }, (_, i) => i + 1).map((m) => `<h3>${m}월</h3><div class="grid g6">${Array.from({ length: dim(2000, m) }, (_, j) => j + 1).map((d) => `<a href="${mdUrl(m, d)}">${d}일</a>`).join('')}</div>`).join('');
-  write('/md/', shell({ url: '/md/', title: '월일별 생일 — 별자리·탄생석·연도별 일주', desc: '1월 1일부터 12월 31일까지 366개 생일의 별자리, 탄생석, 연도별 요일·띠·일주표.', body: `<div class="overline">생일첩</div><h1>월일별 생일</h1><p class="lead">태어난 해와 상관없이 월일로 보는 페이지입니다. 별자리와 탄생석, 그리고 ${Y0}~${Y1}년 각 해의 요일·띠·일주를 한 표로 볼 수 있어요.</p><section>${mdList}</section>`, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: '월일별', url: '/md/' }]) }));
+  write('/md/', shell({ url: '/md/', title: '월일별 생일 — 별자리·탄생석·연도별 일주', desc: '1월 1일부터 12월 31일까지 366개 생일의 별자리, 탄생석, 연도별 요일·띠·일주표.', body: `<div class="overline">생일첩</div><h1>월일별 생일</h1><p class="lead">태어난 해와 상관없이 월일로 보는 페이지입니다. 별자리와 탄생석, 그리고 ${Y0}~${Y1}년 각 해의 요일·띠·일주를 한 표로 볼 수 있습니다.</p><section>${mdList}</section>`, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: '월일별', url: '/md/' }]) }));
 }
 
 function homePage() {
@@ -602,7 +602,7 @@ function homePage() {
   const gradeChips = gradeList(sy - 7).map((x) => `<a href="${schoolUrl(sy - 7 - x.k)}"><b>${x.short}</b><small>${sy - 7 - x.k}년생</small></a>`).join('');
   const body = `
 <h1>생일첩 <span style="font-size:15px;color:var(--faint);font-weight:400">生日帖</span></h1>
-<p class="lead">생년월일 하나로 <strong>만 나이·연나이·세는나이</strong>, <strong>띠와 별자리</strong>, <strong>음력 생일</strong>, 태어난 요일, 환갑·칠순 날짜, 학번, 그리고 사주의 <strong>일주 풀이</strong>까지 한 장에 담습니다. 나이는 매일 자동으로 계산돼요.</p>
+<p class="lead">생년월일 하나로 <strong>만 나이·연나이·세는나이</strong>, <strong>띠와 별자리</strong>, <strong>음력 생일</strong>, 태어난 요일, 환갑·칠순 날짜, 학번, 그리고 사주의 <strong>일주 풀이</strong>까지 한 장에 담습니다. 나이는 매일 자동으로 계산됩니다.</p>
 <form class="form" id="bform" data-base="/">
   <div class="row"><select name="y" data-min="${Y0}" data-max="${Y1}" aria-label="년"></select><select name="m" aria-label="월"></select><select name="d" aria-label="일"></select></div>
   <button type="submit">내 생일 페이지 열기</button>
@@ -627,11 +627,11 @@ function homePage() {
 <section>
 <h2>무엇을 알 수 있나요</h2>
 <ul>
-  <li><strong>나이</strong> — 만 나이(법적 나이), 연나이, 세는나이를 오늘 날짜 기준으로. 태어난 지 며칠째인지, 다음 생일까지 며칠 남았는지.</li>
-  <li><strong>기념일</strong> — 100일·1,000일·10,000일, 성년, 환갑·칠순·팔순 날짜와 요일, 국민연금 수급 개시 연도.</li>
-  <li><strong>학교</strong> — 초등학교 입학 연도, 고등학교 졸업 연도, 학번(빠른 생일 반영). <a href="/school/">지금 몇 학년인지</a>와 법적으로 어른이 되는 해까지.</li>
-  <li><strong>띠·별자리·음력</strong> — 색띠 이름, 설날과 입춘 기준의 차이, 별자리와 탄생석, 음력 생일과 손없는 날.</li>
-  <li><strong>사주</strong> — 년주·월주·일주와 일간 캐릭터, 60일주 풀이. 시주와 대운은 <a href="${SAJU}/">사주첩</a>에서 이어집니다.</li>
+  <li><strong>나이</strong>: 만 나이(법적 나이), 연나이, 세는나이를 오늘 날짜 기준으로. 태어난 지 며칠째인지, 다음 생일까지 며칠 남았는지.</li>
+  <li><strong>기념일</strong>: 100일·1,000일·10,000일, 성년, 환갑·칠순·팔순 날짜와 요일, 국민연금 수급 개시 연도.</li>
+  <li><strong>학교</strong>: 초등학교 입학 연도, 고등학교 졸업 연도, 학번(빠른 생일 반영). <a href="/school/">지금 몇 학년인지</a>와 법적으로 어른이 되는 해까지.</li>
+  <li><strong>띠·별자리·음력</strong>: 색띠 이름, 설날과 입춘 기준의 차이, 별자리와 탄생석, 음력 생일과 손없는 날.</li>
+  <li><strong>사주</strong>: 년주·월주·일주와 일간 캐릭터, 60일주 풀이. 시주와 대운은 <a href="${SAJU}/">사주첩</a>에서 볼 수 있습니다.</li>
 </ul>
 </section>
 <section id="years">
@@ -650,7 +650,7 @@ ${decades.join('')}
 <section>
 <h2>나이 계산 기준</h2>
 <p><strong>만 나이</strong>는 태어난 날을 0세로 시작해 생일이 지날 때마다 한 살씩 더하는 방식으로, 2023년 6월 28일부터 법적·행정적 나이의 기준입니다. <strong>연나이</strong>는 올해에서 출생연도를 뺀 값으로 병역법·청소년보호법 등 일부 법령에서 씁니다. <strong>세는나이</strong>는 태어난 해를 1살로 세고 새해마다 한 살씩 더하는 한국식 나이입니다.</p>
-<p><strong>띠</strong>는 관습적으로 설날(음력 1월 1일)에 바뀌고, 사주(명리학)에서는 입춘 시각을 새해의 시작으로 봅니다. 1~2월생은 두 기준이 다를 수 있어 생일 페이지에 둘 다 표시합니다. <strong>음력</strong> 변환은 한국천문연구원 음양력 자료를 따르는 라이브러리를, <strong>절기</strong>는 태양의 황경을 직접 계산해 판정합니다.</p>
+<p><strong>띠</strong>는 관습적으로 설날(음력 1월 1일)에 바뀌고, 사주(명리학)에서는 입춘 시각을 새해의 시작으로 봅니다. 1~2월생은 두 기준이 다를 수 있어 생일 페이지에 둘 다 표시합니다. <strong>음력</strong> 변환에는 한국천문연구원 음양력 자료를 따르는 라이브러리를 쓰고, <strong>절기</strong>는 태양의 황경을 직접 계산해 판정합니다.</p>
 </section>
 `;
   write('/', shell({ url: '/', title: '생일첩 — 생년월일로 보는 나이·띠·별자리·음력·일주', desc: `생년월일을 넣으면 만 나이·연나이·세는나이, 띠와 별자리, 음력 생일, 태어난 요일, 환갑·칠순 날짜, 학번, 사주 일주 풀이까지. ${Y0}년부터 오늘까지 모든 날짜.`, body, jsonld: { '@context': 'https://schema.org', '@type': 'WebSite', name: '생일첩', url: SITE + '/' } }));
