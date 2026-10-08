@@ -99,8 +99,9 @@ td a { text-decoration: none; }
 .form .row { display: flex; gap: 8px; }
 .form select, .form button { font: inherit; font-size: 15px; padding: 10px 8px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); color: var(--ink); }
 .form select { flex: 1; min-width: 0; }
-.form button { width: 100%; margin-top: 10px; background: var(--seal); color: #fff; border: none; font-weight: 700; cursor: pointer; }
-.form button:hover { background: var(--seal-deep); }
+.form button { width: 100%; margin-top: 10px; min-height: 50px; background: var(--ink); color: #F6F1E8; border: none; font-weight: 700; cursor: pointer; }
+.form button::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 1px; background: var(--seal); vertical-align: 2px; }
+.form button:hover { background: #000; }
 
 .pn { display: flex; justify-content: space-between; gap: 10px; margin: 18px 0 0; font-size: 13.5px; }
 .pn a { text-decoration: none; }
@@ -131,3 +132,14 @@ td.sun { color: var(--seal); } td.sat { color: var(--el-su); }
 .frow-label.chk { font-size: 13px; }
 .out { margin-top: 14px; }
 .out .lead { margin-top: 0; }
+
+/* 시안 A(2026-10-08) — 첫 화면 머리글·제목, 오늘 칸, 먹색 주 버튼 */
+.hero-over { margin: 6px 0 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; color: var(--seal); }
+.hero-h1 { font-size: 30px; line-height: 1.32; word-break: keep-all; }
+.today-a { position: relative; overflow: hidden; margin: 30px 0 0; padding: 20px 0 4px; border-top: 1px solid var(--line); }
+.today-a .ta-wm { position: absolute; right: -4px; top: 6px; font-family: var(--serif); font-size: 84px; font-weight: 700; line-height: 1; color: #EAE1CF; pointer-events: none; }
+.today-a > :not(.ta-wm) { position: relative; }
+.today-a .hero-over { margin: 0 0 4px; }
+.today-a .ta-date { margin: 0; font-size: 13px; color: var(--muted); }
+.today-a .ta-line { margin: 12px 0 0; font-family: var(--serif); font-size: 18px; line-height: 1.65; font-weight: 600; color: var(--ink); word-break: keep-all; }
+.today-a .ta-more { display: inline-block; margin-top: 12px; font-size: 14px; font-weight: 700; color: var(--seal); text-decoration: none; }

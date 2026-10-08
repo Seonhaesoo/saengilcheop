@@ -601,8 +601,9 @@ function homePage() {
   const sy = today.m >= 3 ? today.y : today.y - 1;
   const gradeChips = gradeList(sy - 7).map((x) => `<a href="${schoolUrl(sy - 7 - x.k)}"><b>${x.short}</b><small>${sy - 7 - x.k}년생</small></a>`).join('');
   const body = `
-<h1>생일첩 <span style="font-size:15px;color:var(--faint);font-weight:400">生日帖</span></h1>
-<p class="lead">생년월일 하나로 <strong>만 나이·연나이·세는나이</strong>, <strong>띠와 별자리</strong>, <strong>음력 생일</strong>, 태어난 요일, 환갑·칠순 날짜, 학번, 그리고 사주의 <strong>일주 풀이</strong>까지 한 장에 담습니다. 나이는 매일 자동으로 계산됩니다.</p>
+<p class="hero-over">생년월일 사전 · 生日帖</p>
+<h1 class="hero-h1">생년월일 하나로<br>나이·띠·음력 생일까지</h1>
+<p class="lead"><strong>만 나이·연나이·세는나이</strong>, <strong>띠와 별자리</strong>, <strong>음력 생일</strong>, 태어난 요일, 환갑·칠순 날짜, 학번, 그리고 사주의 <strong>일주 풀이</strong>까지 한 장에 담습니다. 나이는 매일 자동으로 계산됩니다.</p>
 <form class="form" id="bform" data-base="/">
   <div class="row"><select name="y" data-min="${Y0}" data-max="${Y1}" aria-label="년"></select><select name="m" aria-label="월"></select><select name="d" aria-label="일"></select></div>
   <button type="submit">내 생일 페이지 열기</button>
