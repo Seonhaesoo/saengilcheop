@@ -16,6 +16,10 @@ import { DDI, STEM_COLOR, STEM_COLOR_WORD, ZODIAC, BIRTHSTONE, pensionAge, zodia
 import { buildHubs } from './hubs.mjs';
 import { buildSchool, schoolUrl, SCHOOL_Y0 } from './school.mjs';
 import { schoolOf, gradeList } from '../data/school.mjs';
+/* 2026-10-08 구글 스팸 업데이트 뒤 정리 — 검색 수요가 있던 날짜·연월 페이지만 구글 색인(data/index-keep.json).
+ * 나머지는 googlebot 에만 noindex, follow(네이버·빙은 그대로 색인) + 구글용 사이트맵(robots.txt)에서 제외, 전체 목록은 sitemap-all.xml(네이버·빙 제출용) */
+const KEEP = JSON.parse(fs.readFileSync(new URL('../data/index-keep.json', import.meta.url), 'utf8'));
+const KEEP_DAYS = new Set(KEEP.days), KEEP_MONTHS = new Set(KEEP.months);
 
 const { M, I, C, Lunar } = loadEngine();
 const SITE = 'http://saengil.sajucheop.com';
@@ -152,7 +156,7 @@ function shell(o) {
 <meta charset="utf-8">
 ${GA}
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="max-image-preview:large">
+<meta name="robots" content="max-image-preview:large">${o.noindex ? '\n<meta name="googlebot" content="noindex, follow">' : ''}
 <link rel="alternate" type="application/rss+xml" title="새 글" href="/rss.xml">
 <title>${esc(o.title)}</title>
 <meta name="description" content="${esc(o.desc)}">
@@ -202,13 +206,14 @@ const crumbs = (items) => ({
 const eul = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '을' : '를');   /* 받침에 맞는 조사 — 부귀를·정조를 */
 const yeyo = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '이에요' : '예요');
 const faqLd = (faq) => ({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
-const urls = { pages: [], days: {} };
+const urls = { pages: [], days: {}, keepPages: [], keepDays: [] };
 function write(url, html, kind) {
   const file = path.join(OUT, url, 'index.html');
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, html);
-  if (kind === 'day') { const dec = url.slice(1, 4) + '0'; (urls.days[dec] = urls.days[dec] || []).push(url); }
-  else urls.pages.push(url);
+  const g = !html.includes('<meta name="googlebot" content="noindex');   /* 구글 색인 대상인지 */
+  if (kind === 'day') { const dec = url.slice(1, 4) + '0'; (urls.days[dec] = urls.days[dec] || []).push(url); if (g) urls.keepDays.push(url); }
+  else { urls.pages.push(url); if (g) urls.keepPages.push(url); }
 }
 
 /* ---------- 날짜 페이지 ---------- */
@@ -345,7 +350,7 @@ ${sameDay.join('\n')}
 <p class="note">${sajuDay}<a href="${monthUrl(y, m)}">${y}년 ${m}월 달력</a> · <a href="${yearUrl(y)}">${y}년생</a> · <a href="/">다른 생일 찾기</a></p>
 `;
   write(url, shell({
-    url, title, desc, body, birth: iso(y, m, d),
+    url, title, desc, body, birth: iso(y, m, d), noindex: !KEEP_DAYS.has(url),
     jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: `${y}년생`, url: yearUrl(y) }, { name: `${y}년 ${m}월`, url: monthUrl(y, m) }, { name: `${m}월 ${d}일`, url }]),
       { '@context': 'https://schema.org', '@type': 'Article', headline: title, description: desc, datePublished: BUILD_ISO, dateModified: BUILD_ISO, inLanguage: 'ko', author: { '@type': 'Organization', name: '생일첩' }, publisher: { '@type': 'Organization', name: '생일첩' }, mainEntityOfPage: SITE + url }]
   }), 'day');
@@ -398,7 +403,7 @@ ${zs.map((z) => `<h3>${z.sym} ${z.kor} (${z.from[0]}월 ${z.from[1]}일 ~ ${z.to
 </section>
 <p class="pn">${pvM.y >= Y0 ? `<a href="${monthUrl(pvM.y, pvM.m)}">← ${pvM.y}년 ${pvM.m}월</a>` : '<span></span>'}${nxM.y <= Y1 && (nxM.y < today.y || nxM.m <= today.m) ? `<a href="${monthUrl(nxM.y, nxM.m)}">${nxM.y}년 ${nxM.m}월 →</a>` : '<span></span>'}</p>
 `;
-  write(url, shell({ url, title, desc, body, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: `${y}년생`, url: yearUrl(y) }, { name: `${m}월`, url }]) }));
+  write(url, shell({ url, title, desc, body, noindex: !KEEP_MONTHS.has(url), jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: `${y}년생`, url: yearUrl(y) }, { name: `${m}월`, url }]) }));
 }
 
 /* ---------- 연도 페이지 ---------- */
@@ -684,14 +689,20 @@ function staticPages() {
 /* ---------- 사이트맵·정적 파일 ---------- */
 function sitemaps() {
   const urlset = (list) => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${list.map((u) => `<url><loc>${SITE}${u}</loc><lastmod>${BUILD_ISO}</lastmod></url>`).join('\n')}\n</urlset>\n`;
-  const files = ['sitemap-pages.xml'];
-  fs.writeFileSync(path.join(OUT, 'sitemap-pages.xml'), urlset(urls.pages));
+  const index = (files) => `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${files.map((f) => `<sitemap><loc>${SITE}/${f}</loc><lastmod>${BUILD_ISO}</lastmod></sitemap>`).join('\n')}\n</sitemapindex>\n`;
+  /* 구글용(robots.txt 에 적는 것): 색인할 주소만 */
+  fs.writeFileSync(path.join(OUT, 'sitemap-pages.xml'), urlset(urls.keepPages));
+  fs.writeFileSync(path.join(OUT, 'sitemap-days.xml'), urlset(urls.keepDays));
+  fs.writeFileSync(path.join(OUT, 'sitemap.xml'), index(['sitemap-pages.xml', 'sitemap-days.xml']));
+  /* 전체 목록(네이버·빙 제출용, robots.txt 에는 적지 않음) */
+  const all = ['sitemap-pages-all.xml'];
+  fs.writeFileSync(path.join(OUT, 'sitemap-pages-all.xml'), urlset(urls.pages));
   for (const dec of Object.keys(urls.days).sort()) {
     const f = `sitemap-days-${dec}.xml`;
     fs.writeFileSync(path.join(OUT, f), urlset(urls.days[dec]));
-    files.push(f);
+    all.push(f);
   }
-  fs.writeFileSync(path.join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${files.map((f) => `<sitemap><loc>${SITE}/${f}</loc><lastmod>${BUILD_ISO}</lastmod></sitemap>`).join('\n')}\n</sitemapindex>\n`);
+  fs.writeFileSync(path.join(OUT, 'sitemap-all.xml'), index(all));
   fs.writeFileSync(path.join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
 }
 function copyStatic() {
