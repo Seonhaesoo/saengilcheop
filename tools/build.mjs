@@ -187,8 +187,10 @@ ${ld}
   <nav class="nav"><a href="/age/">만나이</a><a href="/school/">학년</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
 </header>
 ${o.body}
-<footer>
-  <div class="frow"><span>© 생일첩 · <a href="${SAJU}/">사주첩</a> · <a href="https://dream.sajucheop.com/">꿈해몽</a> · <a href="${TAROT}/">타로</a> · <a href="https://bodyzip.com/">바디집</a> 자매 사이트</span><nav><a href="/about/">소개</a><a href="/terms/">이용약관</a><a href="/privacy/">개인정보</a></nav></div>
+<footer class="foot2">
+  <p class="flabel">찾아보기</p>
+  <nav class="fgrid" aria-label="찾아보기"><a href="/age/">만 나이</a><a href="/school/">학년</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a><a href="/md/">월일별 생일</a></nav>
+  <div class="frow2"><nav><a href="/about/">소개</a><a href="/terms/">이용약관</a><a href="/privacy/">개인정보</a></nav><span>© 생일첩 · <a href="${SAJU}/">사주첩</a> · <a href="https://dream.sajucheop.com/">꿈해몽</a> · <a href="${TAROT}/">타로</a> · <a href="https://bodyzip.com/">바디집</a> 자매 사이트</span></div>
   <p class="fnote">${o.footNote || '나이·기념일은 계산 결과이며, 띠·별자리·사주 풀이는 전통 명리학과 점성술 이론을 바탕으로 한 참고용 콘텐츠입니다.'}</p>
 </footer>
 </div>
@@ -653,10 +655,16 @@ ${decades.join('')}
 <div class="grid g4">${ZODIAC.map((z) => `<a href="/zodiac/${z.slug}/"><b>${z.sym} ${z.kor}</b><small>${z.from[0]}/${z.from[1]}~${z.to[0]}/${z.to[1]}</small></a>`).join('')}</div>
 <p class="note"><a href="/md/">월일별 생일 전체 보기</a></p>
 </section>
-<section>
+<section class="intro">
+<p class="intro-label">생일첩 이야기</p>
 <h2>나이 계산 기준</h2>
-<p><strong>만 나이</strong>는 태어난 날을 0세로 시작해 생일이 지날 때마다 한 살씩 더하는 방식으로, 2023년 6월 28일부터 법적·행정적 나이의 기준입니다. <strong>연나이</strong>는 올해에서 출생연도를 뺀 값으로 병역법·청소년보호법 등 일부 법령에서 씁니다. <strong>세는나이</strong>는 태어난 해를 1살로 세고 새해마다 한 살씩 더하는 한국식 나이입니다.</p>
-<p><strong>띠</strong>는 관습적으로 설날(음력 1월 1일)에 바뀌고, 사주(명리학)에서는 입춘 시각을 새해의 시작으로 봅니다. 1~2월생은 두 기준이 다를 수 있어 생일 페이지에 둘 다 표시합니다. <strong>음력</strong> 변환에는 한국천문연구원 음양력 자료를 따르는 라이브러리를 쓰고, <strong>절기</strong>는 태양의 황경을 직접 계산해 판정합니다.</p>
+<ol class="steps">
+<li><i aria-hidden="true">滿</i><div><b>만 나이</b><p>태어난 날을 0세로 시작해 생일이 지날 때마다 한 살씩 더합니다. 2023년 6월 28일부터 법적·행정적 나이의 기준입니다.</p></div></li>
+<li><i aria-hidden="true">年</i><div><b>연나이</b><p>올해에서 출생연도를 뺀 값입니다. 병역법·청소년보호법 등 일부 법령에서 씁니다.</p></div></li>
+<li><i aria-hidden="true">歲</i><div><b>세는나이</b><p>태어난 해를 1살로 세고 새해마다 한 살씩 더하는 한국식 나이입니다.</p></div></li>
+<li><i aria-hidden="true">支</i><div><b>띠</b><p>관습적으로 설날(음력 1월 1일)에 바뀌고, 사주(명리학)에서는 입춘 시각을 새해의 시작으로 봅니다. 1~2월생은 두 기준이 다를 수 있어 생일 페이지에 둘 다 표시합니다.</p></div></li>
+<li><i aria-hidden="true">曆</i><div><b>음력과 절기</b><p>음력 변환에는 한국천문연구원 음양력 자료를 따르는 라이브러리를 쓰고, 절기는 태양의 황경을 직접 계산해 판정합니다.</p></div></li>
+</ol>
 </section>
 `;
   write('/', shell({ url: '/', title: '생일첩 — 생년월일로 보는 나이·띠·별자리·음력·일주', desc: `생년월일을 넣으면 만 나이·연나이·세는나이, 띠와 별자리, 음력 생일, 태어난 요일, 환갑·칠순 날짜, 학번, 사주 일주 풀이까지. ${Y0}년부터 오늘까지 모든 날짜.`, body, jsonld: { '@context': 'https://schema.org', '@type': 'WebSite', name: '생일첩', url: SITE + '/' } }));
