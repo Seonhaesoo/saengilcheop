@@ -33,6 +33,8 @@ const Y0 = argOf('--from', 1940);
 const Y1 = argOf('--to', today.y);
 const FULL = Y0 === 1940 && Y1 === today.y;
 const BUILD_ISO = `${today.y}-${String(today.m).padStart(2, '0')}-${String(today.d).padStart(2, '0')}`;
+const FIRST_PUBLISHED = '2026-09-05';   /* 생일첩을 연 날 — Article datePublished·약관 시행일 */
+const CONTENT_DATE = '2026-10-15';      /* 페이지 내용(틀)을 마지막으로 고친 날 — 사이트맵 lastmod·Article dateModified. 글을 고칠 때만 바꾼다(매 빌드 날짜로 두면 구글이 lastmod 를 믿지 않는다) */
 
 const WD = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
 const pad = (n) => String(n).padStart(2, '0');
@@ -354,7 +356,7 @@ ${sameDay.join('\n')}
   write(url, shell({
     url, title, desc, body, birth: iso(y, m, d), noindex: !KEEP_DAYS.has(url),
     jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: `${y}년생`, url: yearUrl(y) }, { name: `${y}년 ${m}월`, url: monthUrl(y, m) }, { name: `${m}월 ${d}일`, url }]),
-      { '@context': 'https://schema.org', '@type': 'Article', headline: title, description: desc, datePublished: BUILD_ISO, dateModified: BUILD_ISO, inLanguage: 'ko', author: { '@type': 'Organization', name: '생일첩' }, publisher: { '@type': 'Organization', name: '생일첩' }, mainEntityOfPage: SITE + url }]
+      { '@context': 'https://schema.org', '@type': 'Article', headline: title, description: desc, datePublished: FIRST_PUBLISHED, dateModified: CONTENT_DATE, inLanguage: 'ko', author: { '@type': 'Organization', name: '생일첩' }, publisher: { '@type': 'Organization', name: '생일첩' }, mainEntityOfPage: SITE + url }]
   }), 'day');
 }
 
@@ -684,21 +686,21 @@ function staticPages() {
 <h3>2. 책임의 한계</h3><p>사이트는 콘텐츠를 이용하다 생긴 어떤 손해에도 책임지지 않습니다.</p>
 <h3>3. 저작권</h3><p>사이트의 글과 디자인은 생일첩에 저작권이 있습니다. 출처를 밝힌 인용과 링크는 자유롭게 하실 수 있으나, 무단 복제·재배포는 금지합니다.</p>
 <h3>4. 광고</h3><p>사이트는 Google AdSense 광고를 게재하며, 광고 수익으로 운영됩니다.</p>
-<p class="note">시행일: ${BUILD_ISO}</p>`);
+<p class="note">시행일: ${FIRST_PUBLISHED}</p>`);
   doc('/privacy/', '개인정보처리방침', '생일첩 개인정보처리방침.', `
 <p>생일첩은 방문자의 개인정보를 소중히 다룹니다.</p>
 <h3>1. 수집하는 정보</h3><p>사이트는 회원가입을 받지 않으며, 이름·연락처 등 개인정보를 직접 수집하지 않습니다. 생년월일 검색은 브라우저 안에서 주소 이동으로만 처리되며 서버에 저장되지 않습니다.</p>
 <h3>2. 쿠키와 제3자 서비스</h3><p>사이트는 방문 통계를 위해 Google Analytics를, 광고 게재를 위해 Google AdSense를 사용합니다. Google은 쿠키를 이용해 방문 기록과 관심사에 맞춘 광고를 보여줄 수 있습니다. 맞춤 광고는 <a href="https://www.google.com/settings/ads" rel="noopener">Google 광고 설정</a>에서, 쿠키 사용은 브라우저 설정에서 거부할 수 있습니다. Google이 데이터를 어떻게 쓰는지는 <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">Google 정책 페이지</a>를 참고하세요.</p>
 <h3>3. 정보의 보관과 파기</h3><p>사이트가 직접 보관하는 개인정보는 없습니다. 통계·광고 서비스에서 처리되는 정보는 각 서비스의 정책을 따릅니다.</p>
 <h3>4. 문의</h3><p>개인정보 관련 문의는 <a href="${SAJU}/">사주첩</a>의 연락처로 보내 주세요.</p>
-<p class="note">시행일: ${BUILD_ISO}</p>`);
+<p class="note">시행일: ${FIRST_PUBLISHED}</p>`);
   fs.writeFileSync(path.join(OUT, '404.html'), shell({ url: '/404', title: '페이지를 찾을 수 없습니다', desc: '생일첩', body: `<h1>이 날짜는 아직 없어요</h1><p class="lead">주소가 잘못되었거나, ${Y0}년 이전 또는 오늘 이후의 날짜입니다.</p><form class="form" id="bform" data-base="/"><div class="row"><select name="y" data-min="${Y0}" data-max="${Y1}"></select><select name="m"></select><select name="d"></select></div><button type="submit">생일 페이지 열기</button></form><p class="note"><a href="/">홈으로</a></p>` }));
 }
 
 /* ---------- 사이트맵·정적 파일 ---------- */
 function sitemaps() {
-  const urlset = (list) => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${list.map((u) => `<url><loc>${SITE}${u}</loc><lastmod>${BUILD_ISO}</lastmod></url>`).join('\n')}\n</urlset>\n`;
-  const index = (files) => `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${files.map((f) => `<sitemap><loc>${SITE}/${f}</loc><lastmod>${BUILD_ISO}</lastmod></sitemap>`).join('\n')}\n</sitemapindex>\n`;
+  const urlset = (list) => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${list.map((u) => `<url><loc>${SITE}${u}</loc><lastmod>${u === '/' ? BUILD_ISO : CONTENT_DATE}</lastmod></url>`).join('\n')}\n</urlset>\n`;
+  const index = (files) => `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${files.map((f) => `<sitemap><loc>${SITE}/${f}</loc><lastmod>${/pages/.test(f) ? BUILD_ISO : CONTENT_DATE}</lastmod></sitemap>`).join('\n')}\n</sitemapindex>\n`;
   /* 구글용(robots.txt 에 적는 것): 색인할 주소만 */
   fs.writeFileSync(path.join(OUT, 'sitemap-pages.xml'), urlset(urls.keepPages));
   fs.writeFileSync(path.join(OUT, 'sitemap-days.xml'), urlset(urls.keepDays));
