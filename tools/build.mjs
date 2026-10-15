@@ -649,6 +649,7 @@ ${decades.join('')}
 <section>
 <h2>띠로 찾기</h2>
 <div class="grid g6">${DDI.map((x) => `<a href="/ddi/${x.slug}/"><b>${x.kor}</b><small>${x.han}</small></a>`).join('')}</div>
+<p class="note"><a href="${SAJU}/2027/">2027 정미년 신년운세 — 띠별·출생연도별로 보기</a> (사주첩)</p>
 </section>
 <section>
 <h2>별자리로 찾기</h2>
