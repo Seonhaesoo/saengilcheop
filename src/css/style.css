@@ -130,7 +130,15 @@ td.sun { color: var(--seal); } td.sat { color: var(--el-su); }
 .frow-label { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13.5px; color: var(--muted); }
 .frow-label input[type=date], .frow-label input[type=number] { font: inherit; font-size: 15px; padding: 8px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); color: var(--ink); flex: 1; min-width: 0; }
 .frow-label.chk { font-size: 13px; }
+.frow-label select { font: inherit; font-size: 15px; padding: 8px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); color: var(--ink); flex: 1; min-width: 0; }
+.frow-label { white-space: nowrap; }
+.frow-label.chk { white-space: normal; }
 .out { margin-top: 14px; }
+/* 날짜 계산기(2026-11-11) — 복무율 막대, 2열 타일, 남은 시간 */
+.bar { height: 10px; margin: 12px 0 2px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--seal); border-radius: 999px; }
+.grid.g2 { grid-template-columns: repeat(2, 1fr); }
+.fact b.cd { font-size: 14.5px; font-variant-numeric: tabular-nums; }
 .out .lead { margin-top: 0; }
 
 /* 시안 A(2026-10-08) — 첫 화면 머리글·제목, 오늘 칸, 먹색 주 버튼 */

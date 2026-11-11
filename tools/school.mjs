@@ -226,7 +226,7 @@ ${decades.join('')}
 <h3>학년은 언제 바뀌나요?</h3>
 <p>매년 3월 1일에 새 학년도가 시작됩니다. 1~2월은 아직 이전 학년이라, 1월에 "몇 학년"을 물으면 지난해 3월에 올라간 학년으로 답하면 됩니다.</p>
 </section>
-<p class="note"><a href="/age/">만 나이 계산기</a> · <a href="/dday/">디데이·100일 계산기</a> · <a href="/cal/${today.y}/">${today.y}년 달력·공휴일</a> · <a href="/">생년월일로 내 페이지 열기</a></p>
+<p class="note"><a href="/suneung/">수능 D-day(시험일까지 남은 날)</a> · <a href="/age/">만 나이 계산기</a> · <a href="/dday/">디데이·100일 계산기</a> · <a href="/cal/${today.y}/">${today.y}년 달력·공휴일</a> · <a href="/">생년월일로 내 페이지 열기</a></p>
 `;
     write(url, shell({ url, title, desc, body, extraBody: '<script src="/js/tools.js" defer></script>', jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: '학년 계산기', url }]), { '@context': 'https://schema.org', '@type': 'WebApplication', name: '학년 계산기', url: c.SITE + url, applicationCategory: 'UtilityApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0' } }] }));
   }

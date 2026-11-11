@@ -274,6 +274,7 @@ ${rows.join('\n')}
 <p>됩니다. 입학·입사 당시 나이나, 특정 날짜에 만 19세가 되는지 같은 걸 확인할 때 기준일을 바꿔 보세요.</p>
 </section>
 <p class="note"><a href="/school/">학년 계산기(출생연도별 입학·졸업 연도)</a> · <a href="/dday/">디데이·100일 계산기</a> · <a href="${calUrl(today.y)}">${today.y}년 달력·공휴일</a> · <a href="/">생년월일로 내 페이지 열기</a></p>
+<p class="note">날짜 계산기: <a href="/army/">전역일 계산기</a> · <a href="/suneung/">수능 D-day</a> · <a href="/couple/">연애 기념일</a> · <a href="/wedding/">결혼기념일</a></p>
 `;
     write(url, shell({ url, title, desc, body, extraBody: `<script>window.LNY=${JSON.stringify(lny)};</script><script src="/js/tools.js" defer></script>`, jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: '만 나이 계산기', url }]), { '@context': 'https://schema.org', '@type': 'WebApplication', name: '만 나이 계산기', url: c.SITE + url, applicationCategory: 'UtilityApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0' } }] }));
   }
@@ -327,6 +328,7 @@ ${rows.join('\n')}
 <p>1주년은 다음 해 같은 날짜로, 윤년이 끼면 366일입니다. 이 계산기의 365일 행은 "365일째"이고 1주년과 하루 차이가 날 수 있습니다.</p>
 </section>
 <p class="note"><a href="/age/">만 나이 계산기</a> · <a href="${calUrl(today.y)}">${today.y}년 달력·공휴일</a></p>
+<p class="note">목적별 계산기: <a href="/couple/">연애 기념일(주년·요일까지)</a> · <a href="/wedding/">결혼기념일</a> · <a href="/army/">전역일 계산기</a> · <a href="/suneung/">수능 D-day</a></p>
 `;
     write(url, shell({ url, title, desc, body, extraBody: '<script src="/js/tools.js" defer></script>', jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: '디데이 계산기', url }]), { '@context': 'https://schema.org', '@type': 'WebApplication', name: '디데이·100일 계산기', url: c.SITE + url, applicationCategory: 'UtilityApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0' } }] }));
   }

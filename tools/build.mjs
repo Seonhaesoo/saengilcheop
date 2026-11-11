@@ -5,6 +5,7 @@
  *  /md/{mm}-{dd}/    월일별 (별자리·탄생석·연도표)
  *  /ddi/{slug}/      12띠
  *  /zodiac/{slug}/   12별자리
+ *  /army/ /couple/ /wedding/ /suneung/  날짜 계산기 (tools/calc.mjs, 계산은 src/js/calc.js)
  *  /school/{y}/      출생연도별 학년·입학·졸업 연도·법적 나이 (tools/school.mjs, 1950 ~ 올해)
  *  사용: node tools/build.mjs [--from 1990 --to 1995]  (범위 생략 시 1940 ~ 올해)
  */
@@ -15,6 +16,7 @@ import { ILJU, UN_LINE, SPOUSE_LINE } from '../data/ilju.mjs';
 import { DDI, STEM_COLOR, STEM_COLOR_WORD, ZODIAC, BIRTHSTONE, pensionAge, zodiacOf } from '../data/meta.mjs';
 import { buildHubs } from './hubs.mjs';
 import { buildSchool, schoolUrl, SCHOOL_Y0 } from './school.mjs';
+import { buildCalc, CALC_DATE } from './calc.mjs';
 import { schoolOf, gradeList } from '../data/school.mjs';
 /* 2026-10-08 구글 스팸 업데이트 뒤 정리 — 검색 수요가 있던 날짜·연월 페이지만 구글 색인(data/index-keep.json).
  * 나머지는 googlebot 에만 noindex, follow(네이버·빙은 그대로 색인) + 구글용 사이트맵(robots.txt)에서 제외, 전체 목록은 sitemap-all.xml(네이버·빙 제출용) */
@@ -211,6 +213,8 @@ const eul = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '을' : '를');
 const yeyo = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '이에요' : '예요');
 const faqLd = (faq) => ({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 const urls = { pages: [], days: {}, keepPages: [], keepDays: [] };
+/* 주소별 lastmod — 글을 고친 페이지만 여기에 날짜를 적는다(없으면 CONTENT_DATE). 2026-11-11: 날짜 계산기 4장을 새로 내고 만 나이·디데이·학년 계산기에 링크를 더함 */
+const LASTMOD = { '/age/': CALC_DATE, '/dday/': CALC_DATE, '/school/': CALC_DATE };
 function write(url, html, kind) {
   const file = path.join(OUT, url, 'index.html');
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -628,6 +632,13 @@ function homePage() {
 <a href="/cal/${today.y + 1}/"><b>${today.y + 1}년 달력</b><small>공휴일·대체공휴일</small></a>
 <a href="/cal/${today.y + 2}/"><b>${today.y + 2}년 달력</b><small>설날·추석 날짜</small></a>
 </div>
+<h3>날짜 계산기</h3>
+<div class="grid g2">
+<a href="/army/"><b>전역일 계산기</b><small>전역일·남은 날·복무율</small></a>
+<a href="/suneung/"><b>수능 D-day</b><small>시험일까지 남은 날</small></a>
+<a href="/couple/"><b>연애 기념일</b><small>100일·1주년·1000일</small></a>
+<a href="/wedding/"><b>결혼기념일</b><small>몇 주년, 다음 기념일</small></a>
+</div>
 </section>
 <section>
 <h2>${sy}학년도 학년별 출생연도</h2>
@@ -699,7 +710,7 @@ function staticPages() {
 
 /* ---------- 사이트맵·정적 파일 ---------- */
 function sitemaps() {
-  const urlset = (list) => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${list.map((u) => `<url><loc>${SITE}${u}</loc><lastmod>${u === '/' ? BUILD_ISO : CONTENT_DATE}</lastmod></url>`).join('\n')}\n</urlset>\n`;
+  const urlset = (list) => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${list.map((u) => `<url><loc>${SITE}${u}</loc><lastmod>${u === '/' ? BUILD_ISO : (LASTMOD[u] || CONTENT_DATE)}</lastmod></url>`).join('\n')}\n</urlset>\n`;
   const index = (files) => `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${files.map((f) => `<sitemap><loc>${SITE}/${f}</loc><lastmod>${/pages/.test(f) ? BUILD_ISO : CONTENT_DATE}</lastmod></sitemap>`).join('\n')}\n</sitemapindex>\n`;
   /* 구글용(robots.txt 에 적는 것): 색인할 주소만 */
   fs.writeFileSync(path.join(OUT, 'sitemap-pages.xml'), urlset(urls.keepPages));
@@ -752,9 +763,10 @@ DDI.forEach(ddiPage);
 ZODIAC.forEach(zodiacPage);
 indexPages();
 homePage();
-const ctx = { shell, write, esc, pad, iso, fmt, num, WD, today, Y0, Y1, SITE, SAJU, dayUrl, monthUrl, yearUrl, mdUrl, dn, civ, weekday, isLeap, dim, addDays, addYears, lunarOf, lunarNewYear, yearTerms, ddiOfYear, stemOfYear, colorDdi, colorDdiShort, yearGanji, crumbs, M, I, Lunar, DDI, BUILD_ISO };
+const ctx = { shell, write, esc, pad, iso, fmt, num, WD, today, Y0, Y1, SITE, SAJU, dayUrl, monthUrl, yearUrl, mdUrl, dn, civ, weekday, isLeap, dim, addDays, addYears, lunarOf, lunarNewYear, yearTerms, ddiOfYear, stemOfYear, colorDdi, colorDdiShort, yearGanji, crumbs, faqLd, lastmod: LASTMOD, M, I, Lunar, DDI, BUILD_ISO };
 buildHubs(ctx);
 buildSchool(ctx);
+buildCalc(ctx);
 staticPages();
 sitemaps();
 console.log(`생일첩 빌드 완료: ${Y0}~${Y1}, 날짜 ${count}장 + 기타 ${urls.pages.length}장, ${((Date.now() - t0) / 1000).toFixed(1)}s${FULL ? '' : ' (부분 빌드)'}`);
