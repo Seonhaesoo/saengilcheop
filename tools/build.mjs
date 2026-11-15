@@ -152,6 +152,10 @@ const GA = `<script async src="https://www.googletagmanager.com/gtag/js?id=G-JCD
 const TAROT = 'https://tarot.sajucheop.com';
 const BRAND_SVG = `<svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="true"><rect x="1.5" y="1.5" width="27" height="27" rx="5" fill="#B8382D"/><text x="15" y="13.5" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="10" font-weight="600" fill="#F6F1E8">生</text><text x="15" y="25" text-anchor="middle" font-family="'Noto Serif KR',serif" font-size="10" font-weight="600" fill="#F6F1E8">日</text></svg>`;
 
+/* 2026-11-16 쿠팡 다이나믹 배너 '고객 관심 기반 추천'(파트너스 배너 1019568, subId saengil) — 본문 끝·바닥글 위에 한 번.
+ * 보는 사람이 쿠팡에서 본 상품을 띄운다. 폭은 화면에 맞춰 최대 680px, 대가성 문구 함께. 소개·약관·개인정보에는 넣지 않는다 */
+const DYN_BANNER = `<aside class="cp-dyn"><p class="cp-h">쿠팡 추천 상품</p><div class="cp-dyn-slot"><script src="https://ads-partners.coupang.com/g.js"></script><script>(function(){var s=document.currentScript,w=Math.min(680,Math.max(280,(s.parentNode&&s.parentNode.clientWidth)||680));new PartnersCoupang.G({"id":1019568,"trackingCode":"AF3659962","subId":"saengil","template":"carousel","width":String(w),"height":"140"});})();</script></div><p class="cp-note">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p></aside>`;
+
 function shell(o) {
   const ld = o.jsonld ? `<script type="application/ld+json">${JSON.stringify(o.jsonld)}</script>` : '';
   return `<!doctype html>
@@ -191,6 +195,7 @@ ${ld}
   <nav class="nav"><a href="/age/">만나이</a><a href="/school/">학년</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
 </header>
 ${o.body}
+${o.noDyn || /^\/(about|terms|privacy)\//.test(o.url || '') ? '' : DYN_BANNER}
 <footer class="foot2">
   <p class="flabel">찾아보기</p>
   <nav class="fgrid" aria-label="찾아보기"><a href="/age/">만 나이</a><a href="/school/">학년</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a><a href="/md/">월일별 생일</a></nav>
