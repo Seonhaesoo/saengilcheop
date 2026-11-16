@@ -17,7 +17,12 @@ export const ELECTIONS = {
   2026: [6, 3, '제9회 전국동시지방선거'],
   2028: [4, 12, '제23대 국회의원 선거']
 };
-export const SUBST_NOTE = '대체공휴일은 삼일절·제헌절·광복절·개천절·한글날·노동절·어린이날·부처님오신날·성탄절이 토·일요일이나 다른 공휴일과 겹칠 때, 설·추석 연휴는 일요일이나 다른 공휴일과 겹칠 때 그 다음 첫 번째 평일에 붙습니다. 노동절(5월 1일)과 제헌절(7월 17일)은 2026년부터 공휴일입니다. 신정·현충일·선거일은 대체공휴일이 없고, 정부가 따로 정하는 임시공휴일은 포함하지 않았습니다.';
+/* 확인한 월력요항 — 우주항공청이 해마다 6월쯤 다음 해 것을 관보에 싣는다. 발표된 해만 적고, 이 숫자와 계산이 같은지 test-holidays.mjs 가 확인한다.
+ *  total: 관공서 공휴일(일요일 포함, 일요일과 겹친 날은 한 번만), rest: 주 5일 기준 쉬는 날(토·일 + 평일 공휴일), long: 3일 이상 연휴 횟수 */
+export const ALMANAC = {
+  2027: { published: '2026-06-29', by: '우주항공청', total: 72, rest: 119, long: 10, href: 'https://astro.kasi.re.kr/life/post/calendarData?year=2027' }
+};
+export const SUBST_NOTE ='대체공휴일은 삼일절·제헌절·광복절·개천절·한글날·노동절·어린이날·부처님오신날·성탄절이 토·일요일이나 다른 공휴일과 겹칠 때, 설·추석 연휴는 일요일이나 다른 공휴일과 겹칠 때 그 다음 첫 번째 평일에 붙습니다. 노동절(5월 1일)과 제헌절(7월 17일)은 2026년부터 공휴일입니다. 신정·현충일·선거일은 대체공휴일이 없고, 정부가 따로 정하는 임시공휴일은 포함하지 않았습니다.';
 
 /* h: { lunarToSolar(y,m,d) → {y,m,d}, weekday(y,m,d) → 0(일)~6(토), addDays({y,m,d}, n) → {y,m,d} } */
 export function holidaysOf(y, h) {
@@ -64,7 +69,7 @@ export function holidaysOf(y, h) {
     handled.add(k(it));
     const start = long ? lastOfGroup(it.group) : it;
     const c = nextFree(start);
-    items.push({ y: c.y, m: c.m, d: c.d, name: `대체공휴일 (${it.group === 'seol' ? '설날' : it.group === 'chuseok' ? '추석' : it.name})`, group: 'sub', kind: '대체공휴일', base: it.name });
+    items.push({ y: c.y, m: c.m, d: c.d, name: `대체공휴일 (${it.group === 'seol' ? '설날' : it.group === 'chuseok' ? '추석' : it.name})`, group: 'sub', kind: '대체공휴일', base: it.name, on: k(it) });
   }
   return items.filter((it) => it.y === y).sort((a, b) => a.m - b.m || a.d - b.d);
 }

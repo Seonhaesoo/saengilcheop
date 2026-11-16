@@ -1,6 +1,13 @@
 /* 생일첩 허브 페이지 — 만나이 계산기(/age/), 디데이·100일 계산기(/dday/), 연도별 달력·공휴일(/cal/{y}/, /cal/{y}/{mm}/)
  * build.mjs 가 헬퍼를 담은 컨텍스트로 buildHubs(c) 를 호출한다. */
-import { holidaysOf, samjaeOf, SUBST_NOTE } from '../data/holidays.mjs';
+import { holidaysOf, samjaeOf, SUBST_NOTE, ALMANAC } from '../data/holidays.mjs';
+import { spanDays, planLeave, yearCounts } from './leave.mjs';
+
+/* 2026-11-16 연도 달력(/cal/{y}/)에 공휴일 비고·연휴 표·FAQ 구조화 데이터, 연차 꿀팁(/holidays/{y}/)을 더한 날 — 이 페이지들의 lastmod.
+ * 월 달력(/cal/{y}/{mm}/)은 그대로라 날짜를 바꾸지 않는다 */
+export const HOL_DATE = '2026-11-16';
+const LAW_HOL = 'https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EA%B4%80%EA%B3%B5%EC%84%9C%EC%9D%98%EA%B3%B5%ED%9C%B4%EC%9D%BC%EC%97%90%EA%B4%80%ED%95%9C%EA%B7%9C%EC%A0%95';
+const LAW_LSA = 'https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EA%B7%BC%EB%A1%9C%EA%B8%B0%EC%A4%80%EB%B2%95%EC%8B%9C%ED%96%89%EB%A0%B9';
 
 export function buildHubs(c) {
   const { shell, write, esc, pad, fmt, WD, today, Y0, Y1, SAJU, dayUrl, yearUrl, dn, weekday, dim, addDays, lunarOf, lunarNewYear, yearTerms, ddiOfYear, colorDdi, colorDdiShort, yearGanji, crumbs, M, Lunar, DDI } = c;
@@ -77,6 +84,16 @@ export function buildHubs(c) {
     return `<div class="cal">${['일', '월', '화', '수', '목', '금', '토'].map((w, i) => `<span class="wd ${wdCls(i)}">${w}</span>`).join('')}${cells.join('')}</div>`;
   }
   const holTable = (hol) => `<div class="tw"><table><thead><tr><th>날짜</th><th>요일</th><th>공휴일</th><th></th></tr></thead><tbody>${hol.map((h) => { const w = weekday(h.y, h.m, h.d); return `<tr${h.kind === '대체공휴일' ? ' class="sub"' : ''}><td>${h.m}월 ${h.d}일</td><td class="${wdCls(w)}">${WD[w]}</td><td>${esc(h.name)}</td><td class="note">${h.kind === '대체공휴일' ? '대체공휴일' : (h.group === 'seol' || h.group === 'chuseok') ? '연휴' : h.group === 'election' ? '선거일' : ''}</td></tr>`; }).join('')}</tbody></table></div>`;
+  const iga = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '이' : '가');
+  /* 연도 페이지용 공휴일 표 — 주말과 겹친 날과 그 대체공휴일을 비고에 */
+  const holYearTable = (hol) => `<div class="tw"><table><thead><tr><th>날짜</th><th>요일</th><th>공휴일</th><th>비고</th></tr></thead><tbody>${hol.map((h) => {
+    const w = weekday(h.y, h.m, h.d);
+    const sb = hol.find((x) => x.kind === '대체공휴일' && x.on === `${h.y}-${h.m}-${h.d}` && x.base === h.name);
+    const note = h.kind === '대체공휴일' ? `${esc(h.base.replace(' 연휴', ''))}${iga(h.base)} ${(() => { const [, mm, dd] = h.on.split('-').map(Number); const ww = weekday(h.y, mm, dd); return `${mm}월 ${dd}일 ${W1(ww)}요일과 겹쳐서`; })()}`
+      : (w === 0 || w === 6) ? `${W1(w)}요일과 겹침 · ${sb ? `<b>${sb.m}월 ${sb.d}일(${W1(weekday(sb.y, sb.m, sb.d))})</b> 대체공휴일` : '대체공휴일 없음'}`
+        : (h.group === 'seol' || h.group === 'chuseok') ? '연휴' : h.group === 'election' ? '선거일' : '';
+    return `<tr${h.kind === '대체공휴일' ? ' class="sub"' : ''}><td>${h.m}월 ${h.d}일</td><td class="${wdCls(w)}">${WD[w]}</td><td>${esc(h.name)}</td><td class="note">${note}</td></tr>`;
+  }).join('')}</tbody></table></div>`;
   const yearsNav = (cur) => `<div class="grid g3">${CAL_YEARS.map((y) => `<a href="${calUrl(y)}"${y === cur ? ' class="cur"' : ''}><b>${y}년</b><small>${colorDdiShort(y)}</small></a>`).join('')}</div>`;
 
   /* ---------- 연도 달력·공휴일 ---------- */
@@ -96,14 +113,29 @@ export function buildHubs(c) {
     const sonByMonth = Array.from({ length: 12 }, (_, i) => days.filter((x) => x.m === i + 1 && x.lun && x.lun.son).map((x) => x.d));
     const inSaju = y <= today.y + 1;
     const runTxt = (r, h) => (r ? `${r.from.m}월 ${r.from.d}일(${W1(r.from.w)}) ~ ${r.to.m}월 ${r.to.d}일(${W1(r.to.w)}) · ${r.len}일` : `${h.m}월 ${h.d - 1}일 ~ ${h.m}월 ${h.d + 1}일 · 3일`);
-    const title = `${y}년 달력·공휴일 — 대체공휴일, 설날·추석 연휴, 절기, 손없는 날 (${g.kor}년 ${colorDdi(y)})`;
-    const desc = `${y}년 공휴일은 ${holDates.length}일(평일 ${weekdayHol}일), 대체공휴일 ${subs.length}일. 설날 ${seol.m}월 ${seol.d}일, 추석 ${chu.m}월 ${chu.d}일. 3일 이상 연휴 ${long.length}번과 연차 하루로 길어지는 징검다리, 24절기, 손없는 날, 삼재 띠까지 ${y}년 달력 한 장에.`;
+    const alm = ALMANAC[y];
+    const leaveUrl = alm && y >= today.y ? `/holidays/${y}/` : null;
+    const sundays = days.filter((x) => x.w === 0).length;
+    const govTotal = days.filter((x) => x.w === 0 || x.hol.length).length;   /* 월력요항의 '공휴일' 셈 — 일요일 포함 */
+    const restDays = days.filter((x) => x.off).length;
+    const md = (h) => `${h.m}/${h.d}`;
+    const runMd = (r, h) => (r ? `${r.from.m}/${r.from.d}~${r.to.m}/${r.to.d}` : `${h.m}/${h.d - 1}~${h.m}/${h.d + 1}`);
+    const title = `${y}년 달력·공휴일 — 대체공휴일 ${subs.length}일, 설날·추석 연휴, 3일 이상 연휴 ${long.length}번 (${g.kor}년 ${colorDdi(y)})`;
+    const desc = `${y} 공휴일 ${govTotal}일(일요일 포함), 대체공휴일 ${subs.length}일${subs.length ? '(' + subs.map(md).join('·') + ')' : ''}. 설 연휴 ${runMd(seolRun, seol)}, 추석 연휴 ${runMd(chuRun, chu)}, 3일 이상 연휴 ${long.length}번, 주 5일 기준 쉬는 날 ${restDays}일. ${leaveUrl ? '연차 붙이기 꿀팁, ' : '연차 하루로 길어지는 징검다리, '}24절기·손없는 날까지 ${y}년 달력 한 장에.`;
+    const faq = [
+      [`${y}년 공휴일은 며칠인가요?`, `일요일 ${sundays}일을 포함한 관공서 공휴일은 ${govTotal}일입니다. 일요일이 아닌 공휴일·대체공휴일이 ${govTotal - sundays}일이고, 그중 토요일과 겹치지 않아 실제로 평일에 쉬는 날은 ${weekdayHol}일입니다. 정부가 따로 지정하는 임시공휴일이 생기면 더 늘어납니다.`],
+      [`${y}년 대체공휴일은 언제인가요?`, subs.length ? subs.map((h) => `${h.m}월 ${h.d}일(${W1(weekday(h.y, h.m, h.d))}, ${h.base.replace(' 연휴', '')})`).join(', ') + `로 모두 ${subs.length}일입니다.` : '토·일요일과 겹치는 대상 공휴일이 없어 대체공휴일이 없는 해입니다.'],
+      [`${y}년 설 연휴와 추석 연휴는 언제인가요?`, `설 연휴는 ${runTxt(seolRun, seol)}, 추석 연휴는 ${runTxt(chuRun, chu)}입니다.`],
+      [`${y}년에 쉬는 날은 모두 며칠인가요?`, `토·일요일만 쉬는 주 5일 근무 기준으로 ${restDays}일입니다. 토·일요일 ${days.filter((x) => x.w === 0 || x.w === 6).length}일에 평일 공휴일 ${weekdayHol}일을 더한 수입니다.`],
+      [`${y}년 3일 이상 연휴는 몇 번인가요?`, `${long.length}번입니다. ${long.map((b) => `${b.from.m}/${b.from.d}~${b.to.m}/${b.to.d}`).join(', ')}.`]
+    ];
+    if (leaveUrl) faq.push([`${y}년 연차는 언제 쓰면 좋나요?`, `연휴 앞뒤의 징검다리 평일에 쓰면 적은 연차로 길게 쉴 수 있습니다. 날짜별 계산은 생일첩 '${y} 연차 꿀팁' 페이지에 정리했습니다.`]);
     const body = `
 <div class="overline">생일첩 · 달력</div>
 <h1>${y}년 달력 · 공휴일</h1>
-<p class="lead">${y}년은 <strong>${g.kor}(${g.han})년 ${colorDdi(y)}</strong>의 해입니다. 공휴일은 모두 <strong>${holDates.length}일</strong>이고 그중 평일에 드는 날이 <strong>${weekdayHol}일</strong>, 대체공휴일이 <strong>${subs.length}일</strong>입니다. 설날은 ${seol.m}월 ${seol.d}일(${WD[weekday(y, seol.m, seol.d)]}), 추석은 ${chu.m}월 ${chu.d}일(${WD[weekday(y, chu.m, chu.d)]})입니다.</p>
+<p class="lead">${y}년은 <strong>${g.kor}(${g.han})년 ${colorDdi(y)}</strong>의 해입니다. 공휴일은 일요일을 포함해 <strong>${govTotal}일</strong>(일요일과 겹치지 않는 공휴일·대체공휴일 ${govTotal - sundays}일)이고, 그중 평일에 드는 날이 <strong>${weekdayHol}일</strong>, 대체공휴일이 <strong>${subs.length}일</strong>입니다. 설날은 ${seol.m}월 ${seol.d}일(${WD[weekday(y, seol.m, seol.d)]}), 추석은 ${chu.m}월 ${chu.d}일(${WD[weekday(y, chu.m, chu.d)]})입니다.</p>
 <div class="facts">
-  <div class="fact hi"><small>공휴일</small><b>${holDates.length}일</b><i>평일 ${weekdayHol}일 · 대체 ${subs.length}일</i></div>
+  <div class="fact hi"><small>공휴일 (일요일 포함)</small><b>${govTotal}일</b><i>평일 ${weekdayHol}일 · 대체 ${subs.length}일</i></div>
   <div class="fact"><small>설날 연휴</small><b>${seol.m}/${seol.d - 1}~${seol.m}/${seol.d + 1}</b><i>${seolRun ? seolRun.len + '일 쉼' : '3일'}</i></div>
   <div class="fact"><small>추석 연휴</small><b>${chu.m}/${chu.d - 1}~${chu.m}/${chu.d + 1}</b><i>${chuRun ? chuRun.len + '일 쉼' : '3일'}</i></div>
   <div class="fact"><small>3일 이상 연휴</small><b>${long.length}번</b><i>징검다리 ${bridges.length}곳</i></div>
@@ -111,19 +143,22 @@ export function buildHubs(c) {
   <div class="fact"><small>주말 포함 쉬는 날</small><b>${days.filter((x) => x.off).length}일</b><i>${y}년 ${days.length}일 중</i></div>
 </div>
 <p class="note">${yearsNav(y)}</p>
+${leaveUrl ? `<p class="callout"><a href="${leaveUrl}"><b>${y} 연차 꿀팁</b> — 연휴마다 연차 며칠을 쓰면 며칠 쉬는지, 효율 순위와 연차 계산기 →</a></p>` : ''}
 
 <section>
 <h2>${y}년 공휴일 표</h2>
-${holTable(hol)}
+${holYearTable(hol)}
 <p class="note">${SUBST_NOTE}</p>
+<p class="note">${alm ? `출처: ${alm.by} '${y}년도 월력요항'(${alm.published.slice(0, 4)}년 ${+alm.published.slice(5, 7)}월 ${+alm.published.slice(8)}일 관보 게재)과 대조했습니다. 월력요항 기준 공휴일 ${alm.total}일, 3일 이상 연휴 ${alm.long}번, 주 5일 기준 쉬는 날 ${alm.rest}일로 이 페이지의 계산과 같습니다. <a href="${alm.href}" rel="noopener">한국천문연구원 ${y}년 달력자료</a> · <a href="${LAW_HOL}" rel="noopener">관공서의 공휴일에 관한 규정</a>` : `「<a href="${LAW_HOL}" rel="noopener">관공서의 공휴일에 관한 규정</a>」으로 계산한 날짜입니다.${y > today.y ? ` ${y}년 월력요항은 보통 ${y - 1}년 6월쯤 우주항공청이 발표하며, 발표되면 대조해 고칩니다.` : ''}`}</p>
 </section>
 
 <section>
 <h2>연휴와 징검다리</h2>
-<h3>3일 이상 연휴</h3>
-<ul>${long.map((b) => `<li><b>${b.from.m}월 ${b.from.d}일(${W1(b.from.w)}) ~ ${b.to.m}월 ${b.to.d}일(${W1(b.to.w)})</b>: ${b.len}일${b.names.length ? ' · ' + b.names.join(', ') : ' · 주말'}</li>`).join('') || '<li>없음</li>'}</ul>
+<h3>3일 이상 연휴 ${long.length}번</h3>
+${long.length ? `<div class="tw"><table><thead><tr><th>기간</th><th>쉬는 날</th><th>공휴일</th></tr></thead><tbody>${long.map((b) => `<tr${b.len >= 4 ? ' class="sub"' : ''}><td><b>${b.from.m}월 ${b.from.d}일(${W1(b.from.w)}) ~ ${b.to.m}월 ${b.to.d}일(${W1(b.to.w)})</b></td><td>${b.len}일</td><td class="note">${b.names.length ? b.names.join(', ') : '주말'}</td></tr>`).join('')}</tbody></table></div>` : '<p>없음</p>'}
 <h3>연차 하루로 길어지는 날</h3>
 <ul>${bridges.map((b) => `<li><b>${b.day.m}월 ${b.day.d}일(${W1(b.day.w)})</b>에 연차를 쓰면 ${b.from.m}월 ${b.from.d}일 ~ ${b.to.m}월 ${b.to.d}일 <b>${b.len}일</b> 연휴${b.names.length ? ' · ' + b.names.join(', ') : ''}</li>`).join('') || '<li>없음</li>'}</ul>
+${leaveUrl ? `<p class="note">연차 2~4일로 9~10일을 쉬는 방법은 <a href="${leaveUrl}">${y} 연차 꿀팁</a>에 연휴별로 정리했습니다.</p>` : ''}
 </section>
 
 <section>
@@ -167,12 +202,8 @@ ${sonByMonth.map((ds, i) => `<tr><td>${i + 1}월</td><td>${ds.map((d) => `<a hre
 
 <section>
 <h2>자주 묻는 질문</h2>
-<h3>${y}년 공휴일은 며칠인가요?</h3>
-<p>공휴일은 ${holDates.length}일이고, 주말과 겹치지 않아 실제로 쉬는 평일은 ${weekdayHol}일입니다. 주말까지 합치면 ${y}년에 쉬는 날은 ${days.filter((x) => x.off).length}일입니다. 정부가 따로 지정하는 임시공휴일이 생기면 더 늘어납니다.</p>
-<h3>${y}년 대체공휴일은 언제인가요?</h3>
-<p>${subs.length ? subs.map((h) => `${h.m}월 ${h.d}일(${W1(weekday(h.y, h.m, h.d))}, ${h.base})`).join(', ') + '입니다.' : '토·일요일과 겹치는 대상 공휴일이 없어 대체공휴일이 없는 해입니다.'}</p>
-<h3>${y}년 설 연휴와 추석 연휴는 언제인가요?</h3>
-<p>설 연휴는 ${runTxt(seolRun, seol)}, 추석 연휴는 ${runTxt(chuRun, chu)}입니다.</p>
+${faq.map(([q, a]) => `<h3>${q}</h3>\n<p>${a}</p>`).join('\n')}
+${leaveUrl ? `<p class="note"><a href="${leaveUrl}">${y} 연차 꿀팁 — 연휴별 연차 붙이기·연차 계산기</a></p>` : ''}
 </section>
 
 <section>
@@ -180,7 +211,8 @@ ${sonByMonth.map((ds, i) => `<tr><td>${i + 1}월</td><td>${ds.map((d) => `<a hre
 ${yearsNav(y)}
 </section>
 `;
-    write(url, shell({ url, title, desc, body, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: `${y}년 달력`, url }]) }));
+    c.lastmod[url] = HOL_DATE;
+    write(url, shell({ url, title, desc, body, jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: `${y}년 달력`, url }]), c.faqLd(faq)] }));
   }
 
   /* ---------- 월 달력 ---------- */
@@ -333,12 +365,118 @@ ${rows.join('\n')}
     write(url, shell({ url, title, desc, body, extraBody: '<script src="/js/tools.js" defer></script>', jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: '디데이 계산기', url }]), { '@context': 'https://schema.org', '@type': 'WebApplication', name: '디데이·100일 계산기', url: c.SITE + url, applicationCategory: 'UtilityApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0' } }] }));
   }
 
+  /* ---------- 연차 꿀팁 (/holidays/{y}/) — 월력요항이 나온 해만. 조합은 tools/leave.mjs 가 공휴일 데이터로 계산 ---------- */
+  function leavePage(y) {
+    const url = `/holidays/${y}/`;
+    const alm = ALMANAC[y];
+    const days3 = spanDays(y - 1, y + 1, H);
+    const { blocks, ranking } = planLeave(days3, y);
+    const cnt = yearCounts(days3, y);
+    const label = (b) => { const n = uniq(b.names.map(shortName)).filter((x) => x !== '대체공휴일').join('·'); return n === '신정' ? '연말연시' : n; };
+    const dY = (x) => (x.y !== y ? `${x.y}년 ` : '');
+    const fD = (x) => `${dY(x)}${x.m}월 ${x.d}일(${W1(x.w)})`;
+    const span = (a, b) => (a.y === b.y && a.m === b.m && a.d === b.d ? fD(a)
+      : a.y !== b.y ? `${a.y}년 ${a.m}월 ${a.d}일(${W1(a.w)}) ~ ${b.y}년 ${b.m}월 ${b.d}일(${W1(b.w)})`
+        : `${fD(a)} ~ ${a.m === b.m ? `${b.d}일(${W1(b.w)})` : fD(b)}`);
+    const lv = (o) => o.leave.map((x, i) => `${x.y !== y && (i === 0 || o.leave[i - 1].y !== x.y) ? `${x.y}년 ` : ''}${x.m}/${x.d}(${W1(x.w)})`).join(', ');
+    const bestByL = [];
+    for (let L = 1; L <= 5; L++) {
+      const os = ranking.filter((o) => o.L === L);
+      if (!os.length) continue;
+      const max = Math.max(...os.map((o) => o.len));
+      bestByL.push({ L, len: max, os: os.filter((o) => o.len === max) });
+    }
+    const hl = ranking.filter((o) => o.len >= 9).sort((a, b) => a.L - b.L || a.s - b.s)[0] || ranking[0];
+    const maxLen = Math.max(...ranking.map((o) => o.len));
+    const longest = ranking.filter((o) => o.len === maxLen);
+    const byName = (n) => blocks.find((b) => b.names.some((x) => x.includes(n)));
+    const blockTxt = (b) => (b ? b.options.map((o) => `연차 ${o.L}일(${lv(o)})이면 ${span(o.from, o.to)} ${o.len}일`).join(', ') : '');
+    const seolB = byName('설날'), chuB = byName('추석'), mayB = byName('어린이날');
+    const deflt = hl;
+    const iso = (x) => `${x.y}-${pad(x.m)}-${pad(x.d)}`;
+    const HOLI = {};
+    days3.forEach((x) => { if (x.hol.length) HOLI[iso(x)] = uniq(x.hol.map((h) => shortName(h.name))).join('·'); });
+
+    const title = `${y} 연차 꿀팁 — 연차 ${hl.L}일로 ${label(hl.block)} ${hl.len}일 연휴, 연휴별 연차 붙이기·효율 순위`;
+    const desc = `${y}년 공휴일·대체공휴일로 계산한 연차 붙이기. ${bestByL.map((b) => `연차 ${b.L}일로 ${b.len}일(${uniq(b.os.map((o) => label(o.block))).join('·')})`).join(', ')}. 연휴별 연차 쓸 날과 효율 순위, 날짜를 고르면 필요한 연차를 세는 계산기까지.`;
+    const faq = [
+      [`${y}년 연차는 언제 쓰면 가장 좋나요?`, `연차 하루로 쉬는 날이 가장 많이 늘어나는 날은 ${ranking.slice(0, 3).map((o) => `${label(o.block)}(${lv(o)} → ${o.len}일)`).join(', ')} 순입니다. 쉬는 날 ÷ 연차 일수로 매긴 순위입니다.`],
+      chuB && [`${y} 추석 연휴에 연차를 붙이면 며칠 쉬나요?`, `추석 연휴는 ${span(chuB.runs[0].from, chuB.runs[0].to)} ${chuB.runs[0].len}일입니다. ${blockTxt(chuB)}을 쉽니다.`],
+      seolB && [`${y} 설 연휴에 연차를 붙이면 며칠 쉬나요?`, `설 연휴는 ${span(seolB.runs[0].from, seolB.runs[0].to)} ${seolB.runs[0].len}일입니다. ${blockTxt(seolB)}을 쉽니다.`],
+      mayB && [`${y}년 5월 황금연휴는 어떻게 만드나요?`, `${mayB.names.map(shortName).filter((x) => x !== '대체공휴일').filter((x, i, a) => a.indexOf(x) === i).join('·')}이 이어지는 5월 초에 ${blockTxt(mayB)}을 쉴 수 있습니다.`],
+      [`${y}년에 연차로 가장 길게 쉬려면?`, `연차 5일 안에서는 ${longest.map((o) => `${label(o.block)} ${span(o.from, o.to)}(연차 ${o.L}일)`).join(', ')}이 ${maxLen}일로 가장 깁니다.`],
+      ['5인 미만 사업장도 공휴일과 대체공휴일에 쉬나요?', '근로기준법 제55조 제2항(관공서 공휴일·대체공휴일을 유급휴일로 보장)은 상시 5인 이상 사업장에 적용되고, 5인 이상 30인 미만 사업장은 2022년 1월 1일부터 적용됐습니다. 5인 미만 사업장은 이 조항과 연차휴가 조항(제60조)이 적용되지 않아 취업규칙이나 근로계약에 따릅니다.'],
+      ['임시공휴일도 계산에 들어가나요?', `아닙니다. 「관공서의 공휴일에 관한 규정」에 정해진 공휴일과 대체공휴일만 넣었습니다. 정부가 임시공휴일을 지정하면 더해서 다시 계산합니다.`]
+    ].filter(Boolean);
+
+    const body = `
+<div class="overline"><a href="${calUrl(y)}">${y}년 달력</a> · 연차 꿀팁</div>
+<h1>${y} 연차 꿀팁 — 연휴에 연차 붙이기</h1>
+<p class="lead">${y}년 관공서 공휴일은 <strong>${cnt.total}일</strong>(일요일 포함), 대체공휴일 <strong>${cnt.subst}일</strong>, 3일 이상 연휴는 <strong>${cnt.long}번</strong>입니다. 연차를 가장 알뜰하게 쓰는 날은 <strong>${label(ranking[0].block)}</strong> 앞뒤로, ${lv(ranking[0])} 하루만 쓰면 ${span(ranking[0].from, ranking[0].to)} <strong>${ranking[0].len}일</strong>을 쉽니다. 연차 ${hl.L}일이면 ${span(hl.from, hl.to)} <strong>${hl.len}일</strong> 연휴가 됩니다.</p>
+<div class="facts">
+${bestByL.map((b, i) => `  <div class="fact${i === 0 ? ' hi' : ''}"><small>연차 ${b.L}일 쓰면</small><b>${b.len}일 쉼</b><i>${uniq(b.os.map((o) => label(o.block))).join('·')}</i></div>`).join('\n')}
+  <div class="fact"><small>공휴일</small><b>${cnt.total}일</b><i>일요일 포함 · 대체 ${cnt.subst}일</i></div>
+  <div class="fact"><small>주 5일 기준 쉬는 날</small><b>${cnt.rest}일</b><i>토·일 + 평일 공휴일 ${cnt.weekday}일</i></div>
+</div>
+
+<section>
+<h2>${y} 연차 효율 순위</h2>
+<p class="note">쉬는 날 ÷ 연차 일수가 큰 순서입니다. 쉬는 날은 토·일요일과 공휴일·대체공휴일을 이어 붙인 연속 휴일이고, 연차는 그 사이 평일에 쓴다고 계산했습니다.</p>
+<div class="tw"><table><thead><tr><th>순위</th><th>연차 → 쉼</th><th>기간</th><th>연차 쓸 날</th></tr></thead><tbody>
+${ranking.map((o, i) => `<tr${i < 3 ? ' class="sub"' : ''}><td>${i + 1}</td><td><b>${o.L}일 → ${o.len}일</b></td><td>${span(o.from, o.to)}<br><span class="note">${label(o.block)}</span></td><td>${lv(o)}${o.alts.length ? `<br><span class="note">또는 ${o.alts.map((a) => lv(a)).join(' / ')}</span>` : ''}</td></tr>`).join('\n')}
+</tbody></table></div>
+</section>
+
+<section>
+<h2>연휴별 연차 붙이기</h2>
+${blocks.map((b) => `<h3>${label(b)} <span class="note">${b.runs.map((r) => (r.len > 1 ? `${span(r.from, r.to)} ${r.len}일` : span(r.from, r.to))).join(' · ')}</span></h3>
+<div class="tw"><table><thead><tr><th>연차</th><th>쉬는 날</th><th>기간</th><th>연차 쓸 날</th></tr></thead><tbody>
+${b.options.map((o) => `<tr><td><b>${o.L}일</b></td><td><b>${o.len}일</b></td><td>${span(o.from, o.to)}</td><td>${lv(o)}${o.alts.length ? `<br><span class="note">또는 ${o.alts.map((a) => `${lv(a)} (${span(a.from, a.to)})`).join(' / ')}</span>` : ''}</td></tr>`).join('\n')}
+</tbody></table></div>`).join('\n')}
+<p class="note">연차 5일까지, 연차 일수보다 쉬는 날이 더 많이 늘어나는 경우만 적었습니다. 토~월 3일 연휴에 금요일이나 화요일 연차 하루를 붙여 4일을 쉬는 것처럼 연차만큼만 늘어나는 경우는 뺐습니다. 묶음이 연말·연초에 걸치면 ${y - 1}년 성탄절이나 ${y + 1}년 신정까지 이어서 셉니다.</p>
+</section>
+
+<section>
+<h2>연차 계산기 — 이 기간에 연차 며칠?</h2>
+<p class="note">쉬고 싶은 첫날과 마지막 날을 고르면 그 사이의 주말·공휴일을 빼고 필요한 연차 일수를 셉니다. ${y - 1}~${y + 1}년 공휴일이 들어 있고, 계산은 브라우저 안에서만 합니다.</p>
+<form class="form" id="leave-form">
+  <label class="frow-label">첫날 <input type="date" name="from" min="${y - 1}-01-01" max="${y + 1}-12-31" value="${iso(deflt.from)}" aria-label="첫날"></label>
+  <label class="frow-label">마지막 날 <input type="date" name="to" min="${y - 1}-01-01" max="${y + 1}-12-31" value="${iso(deflt.to)}" aria-label="마지막 날"></label>
+  <button type="submit">필요한 연차 계산하기</button>
+</form>
+<div id="leave-out" class="out" hidden></div>
+</section>
+
+<section>
+<h2>회사마다 다를 수 있는 것</h2>
+<ul>
+  <li><strong>5인 이상 사업장</strong>: 근로기준법 제55조 제2항과 시행령 제30조 제2항에 따라 관공서 공휴일(일요일 제외)과 대체공휴일을 유급휴일로 줘야 합니다. 300인 이상은 2020년, 30~299인은 2021년, 5~29인은 2022년 1월 1일부터 적용됐습니다.</li>
+  <li><strong>5인 미만 사업장</strong>: 위 조항과 연차휴가(제60조)가 적용되지 않아, 공휴일에 쉬는지와 연차는 취업규칙·근로계약에 따릅니다.</li>
+  <li><strong>휴일 대체</strong>: 근로자대표와 서면으로 합의하면 공휴일을 다른 근로일로 바꿀 수 있습니다(제55조 제2항 단서). 공휴일에 출근하고 다른 날 쉬는 회사도 있습니다.</li>
+  <li><strong>5월 1일 노동절</strong>: 2026년 전에도 근로자의 날로 사업장 규모와 관계없이 유급휴일이었고, 2026년부터는 관공서 공휴일이기도 합니다. 5인 미만 사업장이 노동절 대체공휴일까지 쉬는지는 공식 안내를 확인하지 못했으니 회사에 확인하세요.</li>
+  <li><strong>공무원·교대 근무</strong>: 공무원은 관공서 공휴일에 쉬고 연차 대신 연가를 씁니다. 주말에 일하는 교대·서비스 직장은 이 계산과 다릅니다.</li>
+</ul>
+</section>
+
+<section>
+<h2>자주 묻는 질문</h2>
+${faq.map(([q, a]) => `<h3>${q}</h3>\n<p>${a}</p>`).join('\n')}
+</section>
+<p class="note">출처: ${alm.by} '${y}년도 월력요항'(${alm.published.slice(0, 4)}년 ${+alm.published.slice(5, 7)}월 ${+alm.published.slice(8)}일 관보 게재) — 공휴일 ${alm.total}일, 3일 이상 연휴 ${alm.long}번, 주 5일 기준 쉬는 날 ${alm.rest}일로 이 페이지의 계산과 같습니다. <a href="${alm.href}" rel="noopener">한국천문연구원 ${y}년 달력자료</a> · <a href="${LAW_HOL}" rel="noopener">관공서의 공휴일에 관한 규정</a> · <a href="${LAW_LSA}" rel="noopener">근로기준법 시행령</a>. 임시공휴일은 넣지 않았습니다.</p>
+<p class="note"><a href="${calUrl(y)}">${y}년 달력·공휴일 표</a> · <a href="/dday/">디데이 계산기</a> · <a href="/age/">만 나이 계산기</a></p>
+`;
+    c.lastmod[url] = HOL_DATE;
+    write(url, shell({ url, title, desc, body, extraBody: `<script>window.HOLI=${JSON.stringify(HOLI)};</script><script src="/js/leave.js" defer></script>`, jsonld: [crumbs([{ name: '생일첩', url: '/' }, { name: `${y}년 달력`, url: calUrl(y) }, { name: '연차 꿀팁', url }]), c.faqLd(faq)] }));
+  }
+
   /* ---------- 실행 ---------- */
   for (const y of CAL_YEARS) {
     calYearPage(y);
     for (let m = 1; m <= 12; m++) calMonthPage(y, m);
   }
+  const LEAVE_YEARS = CAL_YEARS.filter((y) => ALMANAC[y]);
+  LEAVE_YEARS.forEach(leavePage);
   agePage();
   ddayPage();
-  return { CAL_YEARS, holidays };
+  return { CAL_YEARS, holidays, LEAVE_YEARS };
 }

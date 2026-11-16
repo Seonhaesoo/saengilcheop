@@ -6,6 +6,7 @@
  *  /ddi/{slug}/      12띠
  *  /zodiac/{slug}/   12별자리
  *  /army/ /couple/ /wedding/ /suneung/  날짜 계산기 (tools/calc.mjs, 계산은 src/js/calc.js)
+ *  /holidays/{y}/    연차 꿀팁 — 월력요항이 나온 해만 (tools/hubs.mjs, 조합 계산은 tools/leave.mjs)
  *  /school/{y}/      출생연도별 학년·입학·졸업 연도·법적 나이 (tools/school.mjs, 1950 ~ 올해)
  *  사용: node tools/build.mjs [--from 1990 --to 1995]  (범위 생략 시 1940 ~ 올해)
  */
@@ -18,6 +19,7 @@ import { buildHubs } from './hubs.mjs';
 import { buildSchool, schoolUrl, SCHOOL_Y0 } from './school.mjs';
 import { buildCalc, CALC_DATE } from './calc.mjs';
 import { schoolOf, gradeList } from '../data/school.mjs';
+import { ALMANAC } from '../data/holidays.mjs';
 /* 2026-10-08 구글 스팸 업데이트 뒤 정리 — 검색 수요가 있던 날짜·연월 페이지만 구글 색인(data/index-keep.json).
  * 나머지는 googlebot 에만 noindex, follow(네이버·빙은 그대로 색인) + 구글용 사이트맵(robots.txt)에서 제외, 전체 목록은 sitemap-all.xml(네이버·빙 제출용) */
 const KEEP = JSON.parse(fs.readFileSync(new URL('../data/index-keep.json', import.meta.url), 'utf8'));
@@ -637,6 +639,7 @@ function homePage() {
 <a href="/cal/${today.y + 1}/"><b>${today.y + 1}년 달력</b><small>공휴일·대체공휴일</small></a>
 <a href="/cal/${today.y + 2}/"><b>${today.y + 2}년 달력</b><small>설날·추석 날짜</small></a>
 </div>
+${[today.y, today.y + 1].filter((y) => ALMANAC[y]).map((y) => `<p class="note"><a href="/holidays/${y}/">${y} 연차 꿀팁 — 연휴별 연차 붙이기·연차 계산기</a> · <a href="/cal/${y}/">${y} 공휴일·대체공휴일 표</a></p>`).join('')}
 <h3>날짜 계산기</h3>
 <div class="grid g2">
 <a href="/army/"><b>전역일 계산기</b><small>전역일·남은 날·복무율</small></a>

@@ -1,7 +1,9 @@
 /* 생일첩 — 공휴일·대체공휴일 계산 테스트 (node tools/test-holidays.mjs)
  * 기대값은 월력요항(2025·2026·2027년)과 「관공서의 공휴일에 관한 규정」(2026. 4. 30. 대통령령 제36290호) 기준 */
 import { loadEngine } from './engine.mjs';
-import { holidaysOf, SUBST_NOTE } from '../data/holidays.mjs';
+import { createRequire } from 'node:module';
+import { holidaysOf, SUBST_NOTE, ALMANAC } from '../data/holidays.mjs';
+import { spanDays, planLeave, yearCounts, countRange } from './leave.mjs';
 
 const { I, Lunar } = loadEngine();
 const dn = (y, m, d) => I.daysFromCivil(y, m, d);
@@ -47,6 +49,37 @@ eq('2033년 노동절·제헌절 대체', subs(2033).filter((s) => /노동절|�
 eq('2039년 부처님오신날·노동절 연달아 대체', subs(2039).filter((s) => /부처님오신날|노동절/.test(s)), ['5/2 대체공휴일 (부처님오신날)', '5/3 대체공휴일 (노동절)']);
 
 eq('달력 안내문에 노동절·제헌절', ['노동절', '제헌절'].every((n) => SUBST_NOTE.includes(n)), true);
+
+/* 월력요항에 실린 집계와 같은지 (2027: 공휴일 72일, 주 5일 기준 쉬는 날 119일, 3일 이상 연휴 10번) */
+for (const [y, a] of Object.entries(ALMANAC)) {
+  const c = yearCounts(spanDays(+y - 1, +y + 1, H), +y);
+  eq(`${y}년 월력요항 집계`, [c.total, c.rest, c.long], [a.total, a.rest, a.long]);
+}
+
+/* 2027년 연차 꿀팁 — 연휴별 조합 */
+const D3 = spanDays(2026, 2028, H);
+const { blocks, ranking } = planLeave(D3, 2027);
+const fx = (x) => `${x.y}-${x.m}-${x.d}`;
+const opt = (name) => blocks.find((b) => b.names.includes(name)).options.map((o) => `${o.L}:${o.len}:${fx(o.from)}~${fx(o.to)}`);
+eq('2027 설 연차', opt('설날'), ['3:9:2027-2-6~2027-2-14']);
+eq('2027 추석 연차', opt('추석'), ['1:6:2027-9-11~2027-9-16', '2:9:2027-9-11~2027-9-19']);
+eq('2027 5월 초 연차 (노동절·어린이날 한 묶음)', opt('어린이날'), ['1:5:2027-5-1~2027-5-5', '3:9:2027-5-1~2027-5-9']);
+eq('2027 10월 초 연차 (개천절·한글날 한 묶음)', opt('한글날'), ['4:10:2027-10-2~2027-10-11']);
+eq('2027 신정 연차 (2026 성탄절부터)', opt('신정'), ['4:10:2026-12-25~2027-1-3']);
+eq('2027 성탄절 연차 (2028 신정까지)', opt('성탄절'), ['4:9:2027-12-25~2028-1-2']);
+eq('2027 효율 1위', [ranking[0].L, ranking[0].len, ranking[0].leave.map(fx), ranking[0].alts.map((a) => fx(a.from))], [1, 6, ['2027-9-13'], ['2027-9-14']]);
+eq('2027 묶음 수', blocks.length, 10);
+
+/* 브라우저 연차 계산기(src/js/leave.js)와 같은 셈인지 */
+const LJ = createRequire(import.meta.url)('../src/js/leave.js');
+const iso = (x) => `${x.y}-${String(x.m).padStart(2, '0')}-${String(x.d).padStart(2, '0')}`;
+const HOLI = {};
+D3.forEach((x) => { if (x.hol.length) HOLI[iso(x)] = 1; });
+for (const [a, b] of [[0, 30], [400, 420], [612, 625], [700, 760], [1090, 1095]]) {
+  const r = LJ.count(iso(D3[a]), iso(D3[b]), HOLI);
+  eq(`연차 계산기 ${iso(D3[a])}~${iso(D3[b])}`, [r.total, r.weekend, r.holiday, r.leave], Object.values(countRange(D3, a, b)));
+}
+eq('연차 계산기 2027 추석 9일', LJ.count('2027-09-11', '2027-09-19', HOLI).leave, 2);
 
 console.log(`${fail ? 'FAIL' : 'PASS'} — ${pass} 통과, ${fail} 실패`);
 process.exit(fail ? 1 : 0);

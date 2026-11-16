@@ -16,6 +16,7 @@
 | `/zodiac/{slug}/` | 12별자리 | 12 |
 | `/school/{y}/` | 출생연도별 학년 — 지금 몇 학년, 초·중·고 입학·졸업 연도, 수능 연도, 학번, 주민등록증·투표·성년·연금 등 법적 기준 나이 (1950년~올해) | 77 |
 | `/age/` `/dday/` `/school/` `/cal/{y}/` | 만나이·디데이·학년 계산기(브라우저 계산), 연도별 달력·공휴일 | |
+| `/holidays/{y}/` | 연차 꿀팁 — 연휴별로 연차 N일 쓰면 M일 쉬는 조합(빌드 때 공휴일 데이터로 계산), 효율 순위, 기간별 연차 계산기. 월력요항이 나온 해만(`data/holidays.mjs` 의 `ALMANAC`) | 1 |
 | `/army/` `/couple/` `/wedding/` `/suneung/` | 전역일·연애 기념일·결혼기념일 계산기, 수능 D-day (브라우저 계산 + 빌드 시점 예시 표) | 4 |
 
 나이·D-day는 빌드 시점 값을 넣고, `js/live.js`가 방문자의 오늘 날짜로 다시 계산한다.
@@ -27,6 +28,7 @@ node tools/build.mjs                    # 전체 (약 30초, dist/ 생성)
 node tools/build.mjs --from 1994 --to 1996   # 부분 빌드 (개발용)
 node tools/test-school.mjs              # 학년·입학 연도·법적 나이 계산 테스트
 node tools/test-calc.mjs                # 날짜 계산기(전역일·기념일) 테스트 — 월말·윤년 경계
+node tools/test-holidays.mjs            # 공휴일·대체공휴일, 월력요항 집계, 연차 조합·연차 계산기 테스트
 node server.js                          # http://localhost:8322
 ```
 
@@ -36,9 +38,9 @@ node server.js                          # http://localhost:8322
 
 ```
 engine/      사주첩 엔진 복사본 — manseryeok.js(만세력), vendor-korean-lunar.js(음력), characters.js(일간 캐릭터)
-data/        ilju.mjs(60일주 본문, 사주첩과 동일), meta.mjs(12띠·12별자리·탄생석·연금 연령), holidays.mjs(공휴일), school.mjs(학년·입학 연도·법적 나이), suneung.mjs(수능 시행일 — 교육부 발표분만)
+data/        ilju.mjs(60일주 본문, 사주첩과 동일), meta.mjs(12띠·12별자리·탄생석·연금 연령), holidays.mjs(공휴일·확인한 월력요항 집계), school.mjs(학년·입학 연도·법적 나이), suneung.mjs(수능 시행일 — 교육부 발표분만)
 src/         그대로 복사되는 정적 파일 (css, js/live.js, favicon)
-tools/       build.mjs(생성기), hubs.mjs(계산기·달력 허브), school.mjs(학년 페이지), calc.mjs(날짜 계산기 4장 — 계산은 src/js/calc.js 를 그대로 불러 씀), engine.mjs(Node 로더), test-school.mjs(테스트)
+tools/       build.mjs(생성기), hubs.mjs(계산기·달력 허브), school.mjs(학년 페이지), calc.mjs(날짜 계산기 4장 — 계산은 src/js/calc.js 를 그대로 불러 씀), leave.mjs(연차 조합·연도 집계 — 연차 계산기는 src/js/leave.js), engine.mjs(Node 로더), test-school.mjs(테스트)
 ```
 
 ## 계산 기준
@@ -52,4 +54,6 @@ tools/       build.mjs(생성기), hubs.mjs(계산기·달력 허브), school.mj
 - 연애 기념일: 사귄 날을 1일로 셈(끄면 다음 날부터). 주년은 같은 월일, 2월 29일은 평년에 2월 28일
 - 결혼기념일 이름: 표준국어대사전 뜻풀이의 주년만 (자료마다 다름)
 - 수능 날짜: 교육부 보도자료로 확인한 학년도만 `data/suneung.mjs` 에. 새로 발표되면 한 줄 추가
-- lastmod: 글을 고친 페이지만 `build.mjs` 의 `LASTMOD`(계산기는 `calc.mjs` 의 `CALC_DATE`)에 날짜를 적는다
+- 연차 조합: 쉬는 날 = 토·일 + 관공서 공휴일·대체공휴일. 평일 공휴일이 든 연휴(출근일 4일 이하로 떨어진 연휴는 한 묶음)마다 연차 1~5일로 만들 수 있는 가장 긴 연속 휴일, 앞뒤 날이 출근일인 기간만. 연차 일수만큼만 늘어나는 경우(토~월 연휴 + 금요일 연차 = 4일)는 뺀다. 효율 = 쉬는 날 ÷ 연차. 임시공휴일은 넣지 않음
+- 월력요항: 우주항공청이 해마다 6월쯤 다음 해 것을 낸다. 나오면 `ALMANAC` 에 공휴일 수·쉬는 날·3일 이상 연휴 횟수를 한 줄 넣으면 테스트가 계산과 대조하고 그 해 연차 꿀팁 페이지가 생긴다
+- lastmod: 글을 고친 페이지만 `build.mjs` 의 `LASTMOD`(계산기는 `calc.mjs` 의 `CALC_DATE`, 연도 달력·연차 꿀팁은 `hubs.mjs` 의 `HOL_DATE`)에 날짜를 적는다
