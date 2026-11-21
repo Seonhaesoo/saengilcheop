@@ -58,6 +58,24 @@ export function gradeOn(base, today) {
   return { sy, k, stage: 'done', label: '졸업', short: '졸업' };
 }
 
+/* 학년도 두 해 — 지금 학년도(now)와 다음 학년도(now+1)를 함께 보여 준다.
+ * 10월~2월은 다음 학년도 입학·진급을 찾는 철이라 다음 학년도를 앞세우고(focus), 3~9월은 지금 학년도를 앞세운다.
+ * 예) 2026년 11월: now 2026, focus 2027 / 2027년 1월: now 2026, focus 2027 / 2027년 3월: now 2027, focus 2027(다음은 2028) */
+export function seasonYears(today) {
+  const now = schoolYearOf(today);
+  const focus = today.m >= 10 || today.m <= 2 ? now + 1 : now;
+  return { now, next: now + 1, focus, other: focus === now ? now + 1 : now, pair: [now, now + 1] };
+}
+
+/* 어느 학년도(3월 시작)의 학년 — gradeOn 을 그 학년도 3월 1일로 부른 것. label·short·k·stage 만 쓴다(detail 은 기준일 말투라 쓰지 않음) */
+export const gradeInYear = (base, sy) => gradeOn(base, { y: sy, m: 3, d: 1 });
+
+/* 어느 해의 나이 — 연나이·세는나이와 만 나이 범위(생일 전~생일 후). 그 해 태어났으면 만 0세 */
+export function agesInYear(birthY, year) {
+  const yeon = year - birthY;
+  return { year, yeon, se: yeon + 1, manLo: Math.max(yeon - 1, 0), manHi: Math.max(yeon, 0), man: yeon <= 0 ? '0' : `${yeon - 1}~${yeon}` };
+}
+
 /* 법적 기준 나이 — 현행 법령. basis '만'은 생일부터, '연'은 그 해 1월 1일부터 */
 export function legalAges(y) {
   const p = pensionAge(y);

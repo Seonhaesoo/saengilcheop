@@ -266,12 +266,15 @@ ${days.map((x) => { const href = cellLink(x); return `<tr class="${x.hol.length 
     const lny = {};
     for (let y = 1900; y <= 2050; y++) { const l = lunarNewYear(y); lny[y] = [l.m, l.d]; }
     const rows = [];
-    for (let y = Y1; y >= Y0; y--) rows.push(`<tr><td><a href="${yearUrl(y)}">${y}년생</a></td><td>${today.y - y - 1}~${today.y - y}세</td><td>${today.y - y}세</td><td>${today.y - y + 1}세</td><td>${colorDdiShort(y)}</td></tr>`);
-    const title = '만 나이 계산기 — 만 나이·연나이·세는나이, 태어난 지 며칠, 띠·별자리';
-    const desc = `생년월일을 넣으면 만 나이(법적 나이)·연나이·세는나이를 오늘 또는 원하는 기준일로 계산합니다. 태어난 지 며칠째인지, 다음 생일까지 D-day, 띠와 별자리까지. ${today.y}년 출생연도별 나이 표 포함.`;
+    /* 두 해(올해·내년) 나이 — 10월부터는 내년(예: 2027년) 나이를 제목에 앞세운다 */
+    const YA = today.y, YB = today.y + 1, YF = today.m >= 10 ? YB : YA, YO = YF === YA ? YB : YA;
+    const man = (y, Y) => (Y - y <= 0 ? '0' : `${Y - y - 1}~${Y - y}`);
+    for (let y = Y1; y >= Y0; y--) rows.push(`<tr><td><a href="${yearUrl(y)}">${y}년생</a></td><td>${man(y, YA)}세</td><td>${man(y, YB)}세</td><td>${YA - y} → ${YB - y}세</td><td>${YA - y + 1} → ${YB - y + 1}세</td><td>${colorDdiShort(y)}</td></tr>`);
+    const title = `만 나이 계산기 — ${YF}년 나이(${YO}년 함께), 만 나이·연나이·세는나이, 출생연도별 나이표`;
+    const desc = `생년월일을 넣으면 만 나이(법적 나이)·연나이·세는나이를 오늘 또는 원하는 기준일로 계산합니다. ${YA}년·${YB}년 출생연도별 나이 표, 태어난 지 며칠째인지, 다음 생일까지 D-day, 띠와 별자리까지.`;
     const body = `
 <div class="overline">생일첩 · 계산기</div>
-<h1>만 나이 계산기</h1>
+<h1>만 나이 계산기 — ${YF}년 나이</h1>
 <p class="lead">생년월일을 고르면 <strong>만 나이</strong>(2023년 6월 28일부터 법적 나이), <strong>연나이</strong>, <strong>세는나이</strong>를 한 번에 계산합니다. 기준일을 바꾸면 "그 날짜에 몇 살인지"도 알 수 있습니다. 계산은 브라우저 안에서만 이뤄지고 아무것도 저장되지 않습니다.</p>
 <form class="form" id="age-form">
   <div class="row"><select name="y" data-min="1900" data-max="${today.y}" aria-label="년"></select><select name="m" aria-label="월"></select><select name="d" aria-label="일"></select></div>
@@ -290,9 +293,9 @@ ${days.map((x) => { const href = cellLink(x); return `<tr class="${x.hol.length 
 <p class="callout">2023년 6월 28일 「행정기본법」·「민법」 개정으로 별도 규정이 없으면 모든 나이는 만 나이입니다. 다만 위 표의 연나이를 쓰는 법령은 그대로 유지되므로, 술·담배 구매 가능 연령(그 해에 19세가 되는 사람)이나 병역 검사 시기는 연나이로 봅니다.</p>
 </section>
 <section>
-<h2>${today.y}년 출생연도별 나이 표</h2>
-<p class="note">만 나이는 생일 전이면 앞의 숫자, 생일이 지났으면 뒤의 숫자입니다. 연도를 누르면 그 해 태어난 사람의 띠·학번·환갑 연도가 나옵니다.</p>
-<div class="tw"><table><thead><tr><th>출생연도</th><th>만 나이</th><th>연나이</th><th>세는나이</th><th>띠</th></tr></thead><tbody>
+<h2>${YA}년·${YB}년 출생연도별 나이 표</h2>
+<p class="note">만 나이는 생일 전이면 앞의 숫자, 생일이 지났으면 뒤의 숫자입니다. 연나이·세는나이는 ${YA}년 → ${YB}년(1월 1일에 한 살씩)입니다. 기준일을 ${YB}년 날짜로 바꾸면 위 계산기로 ${YB}년 정확한 만 나이를 볼 수 있습니다. 연도를 누르면 그 해 태어난 사람의 띠·학번·환갑 연도가 나옵니다.</p>
+<div class="tw"><table><thead><tr><th>출생연도</th><th>만 나이 (${YA}년)</th><th>만 나이 (${YB}년)</th><th>연나이</th><th>세는나이</th><th>띠</th></tr></thead><tbody>
 ${rows.join('\n')}
 </tbody></table></div>
 </section>
@@ -302,6 +305,8 @@ ${rows.join('\n')}
 <p>올해에서 출생연도를 뺀 뒤, 올해 생일이 아직 안 지났으면 1을 더 뺍니다. 태어난 날은 0세이고 첫 생일에 1세가 됩니다. 돌이 곧 만 1세입니다.</p>
 <h3>2월 29일생은 생일이 언제인가요?</h3>
 <p>평년에는 2월 28일이 지나면(즉 3월 1일부터) 한 살을 더 먹는 것으로 봅니다. 이 계산기도 같은 방식입니다.</p>
+<h3>${YB}년에는 몇 살인가요?</h3>
+<p>${YB}년 나이는 연나이로 ${YB} − 출생연도, 만 나이는 거기서 ${YB}년 생일 전이면 1을 뺀 값입니다. 예를 들어 ${YB - 30}년생은 ${YB}년에 연나이 30세, 생일 전 만 29세·생일 후 만 30세, 세는나이 31세입니다. 위 표에서 출생연도별로 ${YA}년과 ${YB}년 나이를 함께 볼 수 있습니다.</p>
 <h3>기준일을 과거나 미래로 바꿔도 되나요?</h3>
 <p>됩니다. 입학·입사 당시 나이나, 특정 날짜에 만 19세가 되는지 같은 걸 확인할 때 기준일을 바꿔 보세요.</p>
 </section>

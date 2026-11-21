@@ -50,8 +50,8 @@
         '<p class="lead"><b>' + by + '년 ' + bm + '월 ' + bd + '일생</b>(' + WD[birth.w] + '요일)은 ' + fmt(b) + ' 기준 <b>만 ' + man + '세</b>입니다.</p>' +
         '<div class="facts">' +
         fact('만 나이', man + '세', '법적 나이', true) +
-        fact('연나이', (b.y - by) + '세', b.y + ' − ' + by) +
-        fact('세는나이', (b.y - by + 1) + '세', '한국식 나이') +
+        fact('연나이 / 세는나이', (b.y - by) + ' / ' + (b.y - by + 1) + '세', b.y + ' − ' + by + ' · 세는나이는 한국식') +
+        fact((b.y + 1) + '년 나이', '만 ' + (b.y + 1 - by) + '세', (bm === 2 && bd === 29 && !isLeap(b.y + 1) ? '3월 1일' : bm + '월 ' + bd + '일') + '부터 · 연나이 ' + (b.y + 1 - by) + ' · 세는나이 ' + (b.y + 2 - by)) +
         fact('태어난 지', num(days) + '일', num(Math.floor(days / 7)) + '주 · ' + num(months) + '개월') +
         fact('다음 생일', dday === 0 ? '오늘!' : 'D-' + dday, fmt(nb)) +
         fact('띠 · 별자리', ddiOf(by, bm, bd) + '띠', zodiac(bm, bd)) +
@@ -111,17 +111,21 @@
       var base = early ? by - 1 : by;
       var elem = base + 7, hsGrad = base + 19, univ = base + 19;
       var syr = T5.m >= 3 ? T5.y : T5.y - 1;
-      var k = syr - elem;
+      /* 두 학년도 — 지금(syr)과 다음(syr+1). 10월~2월은 다음 학년도를 앞에 (data/school.mjs seasonYears 와 같음) */
+      var sF = (T5.m >= 10 || T5.m <= 2) ? syr + 1 : syr, sO = sF === syr ? syr + 1 : syr;
+      var gradeAt = function (sy) { var kk = sy - elem; return sy < by ? '출생 전' : kk < 0 ? '미취학' : kk < 12 ? GRADES[kk] : kk < 16 ? '대학 ' + (kk - 11) + '학년' : '졸업'; };
       var yeon = T5.y - by;
       var man = yeon <= 0 ? '0' : bm < T5.m ? String(yeon) : bm > T5.m ? String(yeon - 1) : (yeon - 1) + '~' + yeon;
-      var now = k < 0 ? '미취학' : k < 12 ? GRADES[k] : k < 16 ? '대학 ' + (k - 11) + '학년' : '졸업';
-      var nowSub = k < 0 ? elem + '년 3월 초등학교 입학' : k < 12 ? syr + '년 3월 ~ ' + (syr + 1) + '년 2월' : k < 16 ? '재수·휴학 없이 진학 시' : '고등 졸업 ' + hsGrad + '년 2월';
+      var now = gradeAt(syr);
+      var nY = T5.y + 1, nYeon = nY - by;
       var note = early ? ' 1~2월생이라 <b>빠른 ' + pad(by % 100) + '</b>에 해당해 ' + (by - 1) + '년생과 같은 학년입니다.' : (by === 2003 && bm <= 2 ? ' 2003년 1~2월생은 법 기준으로 2003년생과 같은 학년이지만, 2009년에 조기입학했다면 한 해 위(2002년생과 같은 학년)입니다.' : '');
       show(document.getElementById('school-out'),
-        '<p class="lead"><b>' + by + '년 ' + bm + '월생</b>은 ' + T5.y + '년 ' + T5.m + '월 기준 <b>' + now + '</b>입니다.' + note + '</p>' +
+        '<p class="lead"><b>' + by + '년 ' + bm + '월생</b>은 ' + T5.y + '년 ' + T5.m + '월 기준 <b>' + now + '</b>입니다. ' + (syr + 1) + '학년도(' + (syr + 1) + '년 3월부터)에는 <b>' + gradeAt(syr + 1) + '</b>입니다.' + note + '</p>' +
         '<div class="facts">' +
-        fact(syr + '학년도 지금', now, nowSub, true) +
-        fact('만 나이', man + '세', '연나이 ' + yeon + ' · 세는나이 ' + (yeon + 1)) +
+        fact(sF + '학년도', gradeAt(sF), sF + '년 3월 ~ ' + (sF + 1) + '년 2월' + (sF === syr ? ' (지금)' : ''), true) +
+        fact(sO + '학년도', gradeAt(sO), sO + '년 3월 ~ ' + (sO + 1) + '년 2월' + (sO === syr ? ' (지금)' : '')) +
+        fact('만 나이 (' + T5.y + '년 ' + T5.m + '월)', man + '세', '연나이 ' + yeon + ' · 세는나이 ' + (yeon + 1)) +
+        fact(nY + '년 나이', '만 ' + Math.max(nYeon - 1, 0) + '~' + nYeon + '세', '연나이 ' + nYeon + ' · 세는나이 ' + (nYeon + 1)) +
         fact('초등학교 입학', elem + '년 3월', '졸업 ' + (elem + 6) + '년 2월') +
         fact('고등학교 졸업', hsGrad + '년 2월', '수능 ' + (hsGrad - 1) + '년 11월') +
         fact('대학 입학', univ + '년', pad(univ % 100) + '학번 · 졸업 ' + (univ + 4) + '년') +

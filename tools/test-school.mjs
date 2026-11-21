@@ -1,5 +1,5 @@
 /* 생일첩 — 학년·입학 연도·법적 나이 계산 테스트 (node tools/test-school.mjs) */
-import { schoolOf, gradeOn, gradeList, legalAges, schoolYearOf, isEarly, EARLY_LAST_YEAR } from '../data/school.mjs';
+import { schoolOf, gradeOn, gradeList, legalAges, schoolYearOf, isEarly, EARLY_LAST_YEAR, seasonYears, gradeInYear, agesInYear } from '../data/school.mjs';
 import { schoolTitle, schoolDesc, SCHOOL_Y0 } from './school.mjs';
 import { pensionAge } from '../data/meta.mjs';
 
@@ -52,6 +52,20 @@ eq('빠른 02 (base 2001) 2026년 → 졸업', gradeOn(schoolOf(2002, 1).base, T
 eq('학년 목록 12개', gradeList(2015).length, 12);
 eq('학년 목록 고3 연도', gradeList(2015)[11], { k: 11, year: 2033, school: '고등학교', grade: 3, label: '고등학교 3학년', short: '고3', last: true });
 
+/* 두 학년도 — 10월~2월은 다음 학년도를 앞세운다 */
+const N = { y: 2026, m: 11, d: 21 };
+eq('2026년 11월 → 2026·2027, 2027 앞세움', seasonYears(N), { now: 2026, next: 2027, focus: 2027, other: 2026, pair: [2026, 2027] });
+eq('2026년 9월 → 2026 앞세움', [seasonYears(T).focus, seasonYears(T).other], [2026, 2027]);
+eq('2027년 1월 → 아직 2026학년도, 2027 앞세움', [seasonYears({ y: 2027, m: 1, d: 5 }).now, seasonYears({ y: 2027, m: 1, d: 5 }).focus], [2026, 2027]);
+eq('2027년 3월 → 2027·2028, 2027 앞세움', [seasonYears({ y: 2027, m: 3, d: 1 }).pair, seasonYears({ y: 2027, m: 3, d: 1 }).focus], [[2027, 2028], 2027]);
+eq('2027년 10월 → 2028 앞세움', seasonYears({ y: 2027, m: 10, d: 1 }).focus, 2028);
+eq('2019년생 2026학년도 초1 · 2027학년도 초2', [gradeInYear(2019, 2026).label, gradeInYear(2019, 2027).label], ['초등학교 1학년', '초등학교 2학년']);
+eq('2020년생 2027학년도 초등 입학', [gradeInYear(2020, 2026).stage, gradeInYear(2020, 2027).label, schoolOf(2020).elem], ['pre', '초등학교 1학년', 2027]);
+eq('2015년생 2027학년도 초6', gradeInYear(2015, 2027).label, '초등학교 6학년');
+eq('2008년생 2027학년도 대1', gradeInYear(2008, 2027).label, '대학 1학년');
+eq('2019년생 2027년 나이', agesInYear(2019, 2027), { year: 2027, yeon: 8, se: 9, manLo: 7, manHi: 8, man: '7~8' });
+eq('2026년생 2026년 나이 0세', [agesInYear(2026, 2026).man, agesInYear(2026, 2027).man], ['0', '0~1']);
+
 /* 법적 기준 나이 */
 const L = Object.fromEntries(legalAges(2008).map((r) => [r.key, r]));
 eq('2008년생 주민등록증', [L.id.age, L.id.year], [17, 2025]);
@@ -66,22 +80,27 @@ eq('연금 수급 연령 구간', [pensionAge(1952), pensionAge(1953), pensionAg
 eq('1960년생 연금 수급 2022년', legalAges(1960).find((r) => r.key === 'pension').year, 2022);
 
 /* 제목·설명 — 형식과 길이 */
-eq('2015년생 제목', schoolTitle(2015, T), '2015년생 몇 학년? 2026년 초등학교 5학년 — 입학 2022년·졸업 2034년, 만 나이·성인 나이 (15년생)');
-eq('2002년생 제목', schoolTitle(2002, T), '2002년생 나이는? 2026년 만 23~24세 — 입학 2009년·졸업 2021년·21학번 (02년생)');
-eq('2022년생 제목', schoolTitle(2022, T), '2022년생 학년 계산 — 2026년 미취학(만 3~4세), 초등 입학 2029년·고등 졸업 2041년 (만 나이·성인 나이)');
-eq('2015년생 2027년 1월 제목은 학년도 표기', schoolTitle(2015, { y: 2027, m: 1, d: 10 }).startsWith('2015년생 몇 학년? 2026학년도 초등학교 5학년'), true);
+eq('2015년생 제목 (9월)', schoolTitle(2015, T), '2015년생 2026년 몇 학년? 초등학교 5학년(2027년 초6) — 입학 2022년·졸업 2034년, 만 나이 (15년생)');
+eq('2015년생 제목 (11월, 2027 앞세움)', schoolTitle(2015, N), '2015년생 2027년 몇 학년? 초등학교 6학년(2026년 초5) — 입학 2022년·졸업 2034년, 만 나이 (15년생)');
+eq('2019년생 제목 (11월)', schoolTitle(2019, N), '2019년생 2027년 몇 학년? 초등학교 2학년(2026년 초1) — 입학 2026년·졸업 2038년, 만 나이 (19년생)');
+eq('2020년생 제목 (11월, 입학)', schoolTitle(2020, N), '2020년생 2027년 몇 학년? 초등학교 입학(초1) — 2026년 미취학, 만 6~7세·고등 졸업 2039년 (20년생)');
+eq('2002년생 제목 (11월)', schoolTitle(2002, N), '2002년생 나이는? 2027년 만 24~25세(2026년 23~24세) — 입학 2009년·졸업 2021년·21학번');
+eq('2022년생 제목 (11월)', schoolTitle(2022, N), '2022년생 몇 학년? 2027년 미취학(만 4~5세) — 초등학교 입학 2029년 3월·고등 졸업 2041년 (22년생)');
+eq('2015년생 2027년 1월 제목도 2027 앞세움', schoolTitle(2015, { y: 2027, m: 1, d: 10 }).startsWith('2015년생 2027년 몇 학년? 초등학교 6학년(2026년 초5)'), true);
+eq('2015년생 2027년 3월 제목은 2027·2028', schoolTitle(2015, { y: 2027, m: 3, d: 1 }).startsWith('2015년생 2027년 몇 학년? 초등학교 6학년(2028년 중1)'), true);
 let longTitle = 0, longDesc = 0;
 for (let y = SCHOOL_Y0; y <= T.y; y++) {
-  for (const t of [T, { y: 2027, m: 1, d: 10 }, { y: 2027, m: 3, d: 1 }]) {
+  for (const t of [T, N, { y: 2027, m: 1, d: 10 }, { y: 2027, m: 3, d: 1 }, { y: 2027, m: 10, d: 1 }]) {
     const title = schoolTitle(y, t), desc = schoolDesc(y, t, '푸른 뱀띠');
     if (title.length > 70) { longTitle++; console.log(`제목 ${title.length}자: ${title}`); }
     if (desc.length > 160) { longDesc++; console.log(`설명 ${desc.length}자: ${desc}`); }
   }
 }
-eq('제목 70자 이하 (1950~올해 × 기준일 3종)', longTitle, 0);
+eq('제목 70자 이하 (1950~올해 × 기준일 5종)', longTitle, 0);
 eq('설명 160자 이하', longDesc, 0);
-eq('2002년생 설명에 빠른 02', schoolDesc(2002, T, '검은 말띠').includes('빠른 02에 해당해 2008년 입학·20학번'), true);
-eq('2003년생 설명에 조기입학', schoolDesc(2003, T, '푸른 양띠').includes('2009년에 조기입학'), true);
+eq('2002년생 설명에 빠른 02', schoolDesc(2002, T, '검은 말띠').includes('빠른 02(2008년 입학·20학번)'), true);
+eq('2003년생 설명에 조기입학', schoolDesc(2003, T, '푸른 양띠').includes('조기입학 시 2002년생과 같은 학년'), true);
+eq('2019년생 설명에 두 학년도', schoolDesc(2019, N, '노란 돼지띠').startsWith('2019년생은 2027학년도(2027년 3월~2028년 2월) 초등학교 2학년, 2026학년도 초등학교 1학년. 2027년 만 7~8세(연나이 8세)'), true);
 
 console.log(`${fail ? 'FAIL' : 'PASS'} — ${pass} 통과, ${fail} 실패`);
 process.exit(fail ? 1 : 0);

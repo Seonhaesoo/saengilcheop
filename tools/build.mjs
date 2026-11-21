@@ -16,9 +16,9 @@ import { loadEngine, kstToday, ROOT_DIR } from './engine.mjs';
 import { ILJU, UN_LINE, SPOUSE_LINE } from '../data/ilju.mjs';
 import { DDI, STEM_COLOR, STEM_COLOR_WORD, ZODIAC, BIRTHSTONE, pensionAge, zodiacOf } from '../data/meta.mjs';
 import { buildHubs } from './hubs.mjs';
-import { buildSchool, schoolUrl, SCHOOL_Y0 } from './school.mjs';
+import { buildSchool, schoolUrl, SCHOOL_Y0, SEASON_DATE } from './school.mjs';
 import { buildCalc, CALC_DATE } from './calc.mjs';
-import { schoolOf, gradeList } from '../data/school.mjs';
+import { schoolOf, gradeList, seasonYears, gradeInYear, agesInYear } from '../data/school.mjs';
 import { ALMANAC } from '../data/holidays.mjs';
 /* 2026-10-08 구글 스팸 업데이트 뒤 정리 — 검색 수요가 있던 날짜·연월 페이지만 구글 색인(data/index-keep.json).
  * 나머지는 googlebot 에만 noindex, follow(네이버·빙은 그대로 색인) + 구글용 사이트맵(robots.txt)에서 제외, 전체 목록은 sitemap-all.xml(네이버·빙 제출용) */
@@ -220,8 +220,12 @@ const eul = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '을' : '를');
 const yeyo = (w) => ((w.charCodeAt(w.length - 1) - 0xAC00) % 28 ? '이에요' : '예요');
 const faqLd = (faq) => ({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) });
 const urls = { pages: [], days: {}, keepPages: [], keepDays: [] };
-/* 주소별 lastmod — 글을 고친 페이지만 여기에 날짜를 적는다(없으면 CONTENT_DATE). 2026-11-11: 날짜 계산기 4장을 새로 내고 만 나이·디데이·학년 계산기에 링크를 더함 */
-const LASTMOD = { '/age/': CALC_DATE, '/dday/': CALC_DATE, '/school/': CALC_DATE };
+/* 주소별 lastmod — 글을 고친 페이지만 여기에 날짜를 적는다(없으면 CONTENT_DATE). 2026-11-11: 날짜 계산기 4장을 새로 내고 만 나이·디데이·학년 계산기에 링크를 더함.
+ * 2026-11-21(SEASON_DATE): 만 나이 계산기·학년 계산기와 학년 페이지(/school/{y}/, tools/school.mjs)·연도 페이지(/{y}/)에 두 해(2026·2027) 나이·학년을 더함 */
+const LASTMOD = { '/age/': SEASON_DATE, '/dday/': CALC_DATE, '/school/': SEASON_DATE };
+/* 나이를 함께 보여 줄 두 해 — 10월~12월은 올해와 내년, 1~9월은 올해와 내년이되 앞세우는 해는 올해. 10월부터 내년 나이를 찾는 철 */
+const AGE_A = today.y, AGE_B = today.y + 1, AGE_F = today.m >= 10 ? AGE_B : AGE_A, AGE_O = AGE_F === AGE_A ? AGE_B : AGE_A;
+const manOf = (y, Y) => agesInYear(y, Y).man;
 function write(url, html, kind) {
   const file = path.join(OUT, url, 'index.html');
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -431,18 +435,19 @@ function yearPage(y) {
   for (let yy = y - 60; yy <= y + 60; yy += 12) if (yy >= Y0 && yy <= Y1) sameDdi.push(`<a href="${yearUrl(yy)}"${yy === y ? ' class="cur"' : ''}><b>${yy}</b><small>${colorDdiShort(yy)}</small></a>`);
   const months = Array.from({ length: 12 }, (_, i) => i + 1).filter((m) => y < today.y || m <= today.m).map((m) => `<a href="${monthUrl(y, m)}"><b>${m}월</b><small>${BIRTHSTONE[m].name}</small></a>`).join('');
   const zrows = ZODIAC.map((z) => `<tr><td><a href="/zodiac/${z.slug}/">${z.sym} ${z.kor}</a></td><td>${z.from[0]}월 ${z.from[1]}일 ~ ${z.to[0]}월 ${z.to[1]}일</td></tr>`).join('');
-  const title = `${y}년생 몇 살? ${today.y}년 만 ${yeon - 1}~${yeon}세 — ${colorDdi(y)}(${g.kor}년), 학번·띠·별자리`;
-  const desc = `${y}년생은 ${g.kor}(${g.han})년 ${colorDdi(y)}. ${today.y}년 기준 만 ${yeon - 1}~${yeon}세(연나이 ${yeon}세, 세는나이 ${yeon + 1}세), ${sc.hakbun}학번. 설날 ${lny.m}월 ${lny.d}일, 입춘 ${ip.m}월 ${ip.d}일. 월별 출생 달력과 날짜별 일주.`;
+  const aF = agesInYear(y, AGE_F), aO = agesInYear(y, AGE_O), aA = agesInYear(y, AGE_A), aB = agesInYear(y, AGE_B);
+  const title = `${y}년생 몇 살? ${AGE_F}년 만 ${aF.man}세(${AGE_O}년 ${aO.man}세) — ${colorDdi(y)}(${g.kor}년), 학번·별자리`;
+  const desc = `${y}년생은 ${g.kor}(${g.han})년 ${colorDdi(y)}. ${AGE_F}년 만 ${aF.man}세(연나이 ${aF.yeon}세, 세는나이 ${aF.se}세), ${AGE_O}년 만 ${aO.man}세, ${sc.hakbun}학번. 설날 ${lny.m}월 ${lny.d}일, 입춘 ${ip.m}월 ${ip.d}일. 월별 출생 달력과 날짜별 일주.`;
   const body = `
 <div class="overline">생일첩 · 연도별</div>
 <h1>${y}년생 — ${g.kor}년 ${colorDdi(y)}</h1>
-<p class="lead">${y}년에 태어난 사람은 <strong>${g.kor}(${g.han})년 ${colorDdi(y)}</strong>입니다. <span data-live="year">${today.y}</span>년 기준 <strong>만 ${yeon - 1}세 또는 ${yeon}세</strong>(생일이 지났으면 ${yeon}세), 연나이 <strong>${yeon}세</strong>, 세는나이 <strong>${yeon + 1}세</strong>입니다. 재수 없이 대학에 갔다면 <strong>${sc.hakbun}학번</strong>입니다.</p>
+<p class="lead">${y}년에 태어난 사람은 <strong>${g.kor}(${g.han})년 ${colorDdi(y)}</strong>입니다. <span data-live="year">${today.y}</span>년 기준 <strong>만 ${manOf(y, today.y)}세</strong>${yeon > 0 ? `(생일이 지났으면 ${yeon}세)` : ''}, 연나이 <strong>${yeon}세</strong>, 세는나이 <strong>${yeon + 1}세</strong>입니다. ${AGE_B}년에는 <strong>만 ${aB.man}세</strong>(생일 전 ${aB.manLo}세·생일 후 ${aB.manHi}세), 연나이 ${aB.yeon}세, 세는나이 ${aB.se}세가 됩니다. 재수 없이 대학에 갔다면 <strong>${sc.hakbun}학번</strong>입니다.</p>
 <div class="facts">
-  <div class="fact hi"><small>만 나이 (${today.y}년)</small><b>${yeon - 1}~${yeon}세</b><i>생일 전 ${yeon - 1} · 생일 후 ${yeon}</i></div>
-  <div class="fact"><small>연나이 / 세는나이</small><b>${yeon} / ${yeon + 1}세</b><i>${today.y} − ${y}</i></div>
+  <div class="fact hi"><small>만 나이 (${AGE_F}년)</small><b>${aF.man}세</b><i>${aF.yeon <= 0 ? '그 해 태어남' : `생일 전 ${aF.manLo} · 생일 후 ${aF.manHi}`}</i></div>
+  <div class="fact"><small>만 나이 (${AGE_O}년)</small><b>${aO.man}세</b><i>${aO.yeon <= 0 ? '그 해 태어남' : `생일 전 ${aO.manLo} · 생일 후 ${aO.manHi}`}</i></div>
+  <div class="fact"><small>연나이 / 세는나이 (${AGE_F}년)</small><b>${aF.yeon} / ${aF.se}세</b><i>${AGE_O}년 ${aO.yeon} / ${aO.se}세</i></div>
   <div class="fact"><small>띠</small><b>${ddi.animal}</b><i>${STEM_COLOR[stemOfYear(y)]}(${STEM_COLOR_WORD[STEM_COLOR[stemOfYear(y)]]}) ${ddi.han}</i></div>
-  <div class="fact"><small>설날 (음력 1월 1일)</small><b>${lny.m}월 ${lny.d}일</b><i>${y}년</i></div>
-  <div class="fact"><small>입춘 (사주의 새해)</small><b>${ip.m}월 ${ip.d}일</b><i>${pad(ip.hh)}:${pad(ip.mm)} KST</i></div>
+  <div class="fact"><small>설날 · 입춘</small><b>${lny.m}월 ${lny.d}일</b><i>입춘 ${ip.m}월 ${ip.d}일 ${pad(ip.hh)}:${pad(ip.mm)}</i></div>
   <div class="fact"><small>학번</small><b>${sc.hakbun}학번</b><i>1~2월생 ${scE.early ? scE.hakbun + '학번' : '동일'}</i></div>
 </div>
 <section>
@@ -479,6 +484,7 @@ ${y >= SCHOOL_Y0 ? `  <li><strong>지금 몇 학년?</strong>: <a href="${school
 </section>
 <p class="pn">${y - 1 >= Y0 ? `<a href="${yearUrl(y - 1)}">← ${y - 1}년생</a>` : '<span></span>'}${y + 1 <= Y1 ? `<a href="${yearUrl(y + 1)}">${y + 1}년생 →</a>` : '<span></span>'}</p>
 `;
+  LASTMOD[url] = SEASON_DATE;
   write(url, shell({ url, title, desc, body, jsonld: crumbs([{ name: '생일첩', url: '/' }, { name: `${y}년생`, url }]) }));
 }
 
@@ -618,7 +624,7 @@ function homePage() {
     decades.push(`<h3>${d0}년대</h3><div class="grid g6">${ys.join('')}</div>`);
   }
   const todayMd = mdUrl(today.m, today.d);
-  const sy = today.m >= 3 ? today.y : today.y - 1;
+  const { focus: sy, other: syO } = seasonYears(today);   /* 10월~2월은 다음 학년도를 앞세운다 (data/school.mjs) */
   const gradeChips = gradeList(sy - 7).map((x) => `<a href="${schoolUrl(sy - 7 - x.k)}"><b>${x.short}</b><small>${sy - 7 - x.k}년생</small></a>`).join('');
   const body = `
 <p class="hero-over">생년월일 사전 · 生日帖</p>
@@ -651,7 +657,7 @@ ${[today.y, today.y + 1].filter((y) => ALMANAC[y]).map((y) => `<p class="note"><
 <section>
 <h2>${sy}학년도 학년별 출생연도</h2>
 <div class="grid g6">${gradeChips}</div>
-<p class="note">3월 입학 기준. 1~2월생은 2002년생까지 한 해 위 학년(빠른 년생)입니다. <a href="/school/">출생연도별 학년·입학 연도·성인 나이 계산</a></p>
+<p class="note">${sy}년 3월 ~ ${sy + 1}년 2월 기준(${syO}학년도는 한 해씩 ${syO < sy ? '아래' : '위'}). ${sy}년 초등학교 입학은 ${sy - 7}년생입니다. <a href="/school/">출생연도별 ${sy}·${syO}학년도 학년·입학 연도 계산</a></p>
 </section>
 <section>
 <h2>무엇을 알 수 있나요</h2>
