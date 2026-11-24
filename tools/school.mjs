@@ -3,6 +3,11 @@
 import { schoolOf, gradeOn, gradeList, legalAges, schoolYearOf, seasonYears, gradeInYear, agesInYear, EARLY_LAST_YEAR, EARLY_OPTIONAL_YEAR } from '../data/school.mjs';
 import { pensionAge } from '../data/meta.mjs';
 
+/* 2026-11-25 쿠팡 파트너스 '간편 링크'(초등학교 입학 준비물 검색 결과) — 학년 계산기는 방문 1위이고, 다음 해 입학할
+ * 아이의 부모가 많이 본다. 표 바로 아래(30~40% 깊이)에 한 칸만, 공정위 대가성 문구를 함께 */
+const ENTRY_CP = 'https://link.coupang.com/a/iWCvNmba5A';
+const entryBox = (year) => `<aside class="cp-inline"><p class="cp-lead">${year}년 3월 초등학교 입학이라면 —</p><a class="cp-go" href="${ENTRY_CP}" target="_blank" rel="sponsored noopener"><b>초등학교 입학 준비물 보기</b><small>책가방·실내화·필통·이름 스티커 등 쿠팡에서 한 번에</small></a><p class="cp-note">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p></aside>`;
+
 /* 2026-11-21 학년·나이 페이지에 두 학년도(지금·다음)를 함께 싣고, 10월~2월에는 다음 학년도(2027)를 제목에 앞세운 날 — 이 페이지들의 lastmod */
 export const SEASON_DATE = '2026-11-21';
 const SCHOOL_PUBLISHED = '2026-09-08';   /* /school/{y}/ 를 처음 낸 날 — Article datePublished */
@@ -201,6 +206,7 @@ ${legalRows}
 <p class="note">현행 법령 기준입니다. 만 나이는 생일이 지나야 하고, 연나이는 그 해 1월 1일부터 적용됩니다. 과거에는 성년이 만 20세(2013년 6월까지), 선거권이 만 20세(2005년까지)·만 19세(2019년까지)였으므로 이미 지난 연도는 당시 기준과 다를 수 있습니다. 청소년 관람불가 영화는 만 18세 이상이라도 고등학교 재학생은 볼 수 없습니다. 실제 적용은 해당 기관의 안내를 확인하세요.</p>
 </section>
 ${earlySection}
+${y === F - 7 ? entryBox(F) : ''}
 <section>
 <h2>다른 출생연도</h2>
 <div class="grid">${near.join('')}</div>
@@ -261,6 +267,7 @@ ${gradeRows}
 </tbody></table></div>
 <p class="note">${F}학년도는 ${F}년 3월 ~ ${F + 1}년 2월, ${O}학년도는 ${O}년 3월 ~ ${O + 1}년 2월입니다. 만 나이와 대학 입학은 ${F}학년도 출생연도 기준이고, 만 나이는 생일 전이면 앞의 숫자, 생일이 지났으면 뒤의 숫자입니다. 출생연도를 누르면 그 해 태어난 사람의 입학·졸업 연도표와 법적 나이가 나옵니다.</p>
 </section>
+${entryBox(F)}
 <section>
 <h2>학년 계산 기준</h2>
 <p><strong>초등학교 입학</strong>은 초·중등교육법에 따라 만 6세가 되는 해의 다음 해 3월 1일, 즉 <strong>출생연도 + 7년 3월</strong>입니다. 초등학교 6년, 중학교 3년, 고등학교 3년이 이어지고 모두 3월에 입학해 2월에 졸업합니다. 수능은 고3 11월, 학번은 대학 입학 연도의 뒤 두 자리입니다. 4년제 대학은 입학 4년 뒤 2월에 졸업하고, 남성은 군 복무 기간만큼 늦어집니다.</p>
