@@ -158,8 +158,26 @@ const BRAND_SVG = `<svg width="26" height="26" viewBox="0 0 30 30" aria-hidden="
  * 보는 사람이 쿠팡에서 본 상품을 띄운다. 폭은 화면에 맞춰 최대 680px, 대가성 문구 함께. 소개·약관·개인정보에는 넣지 않는다 */
 const DYN_BANNER = `<aside class="cp-dyn"><p class="cp-h">쿠팡 추천 상품</p><div class="cp-dyn-slot"><script src="https://ads-partners.coupang.com/g.js"></script><script>(function(){var s=document.currentScript,w=Math.min(680,Math.max(280,(s.parentNode&&s.parentNode.clientWidth)||680));new PartnersCoupang.G({"id":1019568,"trackingCode":"AF3659962","subId":"saengil","template":"carousel","width":String(w),"height":"140"});})();</script></div><p class="cp-note">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p></aside>`;
 
+/* 2026-11-25 쿠팡 다이나믹 배너를 본문 중간으로 — 휴대폰에서 맨 아래까지 내려오는 사람이 적다(사용자 요청).
+ * 본문 30% 뒤에서 처음 시작하는 구역·소제목 바로 앞에 넣는다. 그런 자리가 없으면 null — 그때는 맨 아래에 둔다 */
+function midInsert(body, html) {
+  const s = String(body || '');
+  // 구역(<section)이 둘 이상이면 앞에서 40% 쯤 되는 구역 앞에, 아니면 소제목(<h2) 기준으로 같은 자리에.
+  // 글자 수로 재지 않는다 — 본문 끝에 큰 스크립트가 붙은 페이지에서 자리가 맨 아래로 밀렸다
+  for (const re of [/<section\b/g, /<h2\b/g]) {
+    const at = [...s.matchAll(re)].map((m) => m.index);
+    if (at.length >= 2) {
+      const i = at[Math.max(1, Math.floor(at.length * 0.4))];
+      return s.slice(0, i) + '\n' + html + '\n' + s.slice(i);
+    }
+  }
+  return null;
+}
+
 function shell(o) {
   const ld = o.jsonld ? `<script type="application/ld+json">${JSON.stringify(o.jsonld)}</script>` : '';
+  const _dyn = o.noDyn || /^\/(about|terms|privacy)\//.test(o.url || '') ? '' : DYN_BANNER;
+  const _mid = _dyn && !String(o.body || '').includes('cp-inline') ? midInsert(o.body, _dyn) : null;
   return `<!doctype html>
 <html lang="ko">
 <head>
@@ -196,8 +214,8 @@ ${ld}
   <a class="brand" href="/">${BRAND_SVG}<span class="brand-name">생일첩</span></a>
   <nav class="nav"><a href="/age/">만나이</a><a href="/school/">학년</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a></nav>
 </header>
-${o.body}
-${o.noDyn || /^\/(about|terms|privacy)\//.test(o.url || '') ? '' : DYN_BANNER}
+${_mid ?? o.body}
+${_dyn && !_mid ? _dyn : ''}
 <footer class="foot2">
   <p class="flabel">찾아보기</p>
   <nav class="fgrid" aria-label="찾아보기"><a href="/age/">만 나이</a><a href="/school/">학년</a><a href="/cal/${today.y}/">달력</a><a href="/ddi/">띠</a><a href="/zodiac/">별자리</a><a href="/md/">월일별 생일</a></nav>
