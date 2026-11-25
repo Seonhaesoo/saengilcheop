@@ -31,6 +31,9 @@ jobs:
         run: node tools/test-school.mjs && node tools/test-holidays.mjs && node tools/test-calc.mjs
       - name: Build site
         run: node tools/build.mjs
+      - name: 새 주소 목록 — 지금 떠 있는 사이트맵과 비교 (색인 알림용)
+        run: node tools/indexnow.mjs diff dist
+        continue-on-error: true
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
@@ -44,3 +47,6 @@ jobs:
       - id: deployment_retry
         if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v5
+      - name: 색인 알림 — IndexNow 네이버·빙
+        run: node tools/indexnow.mjs send
+        continue-on-error: true
